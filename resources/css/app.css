@@ -26,6 +26,14 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+
+    cursor: pointer;
+    transition: transform 0.3s;
 }
 
 .game-card h2{
@@ -41,6 +49,7 @@
     width: 180px;
     height: 250px;
     object-fit: cover;
+    transition: transform 0.3s ease;
     /* width: 100%;
     height: auto; */
 }
@@ -50,4 +59,53 @@
     color: #f8fdf9; */
     border-radius: 5px;
     /* border-color: #14181c; */
+}
+
+.game-card:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+}
+
+.game-card:hover img {
+    transform: scale(1.1);
+}
+
+.game-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.game-card:hover::after {
+    opacity: 1;
+}
+
+
+
+.game-card-small {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.game-card-small:hover {
+    transform: translateY(-5px);
+}
+
+.hover-zoom {
+    transition: transform 0.3s;
+    cursor: zoom-in;
+}
+
+.progress {
+    height: 25px;
+    border-radius: 20px;
+    overflow: hidden;
 }

@@ -4,12 +4,20 @@ use App\Http\Controllers\GameController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/','/games')->name('dashboard');
 
-Route::middleware(['auth'])->group(function(){
+Route::redirect('/', '/games')->name('dashboard');
+
+
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/games/year', [GameController::class, 'yearFilterGames'])->name('games.yearFilter');
+    Route::get('/games/genre', [GameController::class, 'genreFilterGames'])->name('games.genreFilter');
+    Route::get('/games/{id}', [GameController::class, 'show'])->name('games.show');
 
     Route::resource('games', GameController::class);
 });
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -17,4 +25,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
