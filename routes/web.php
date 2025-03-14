@@ -11,9 +11,11 @@ Route::redirect('/', '/games')->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
 
+    Route::get('/games/search', [GameController::class, 'search'])->name('games.search');
     Route::get('/games/year', [GameController::class, 'yearFilterGames'])->name('games.yearFilter');
     Route::get('/games/genre', [GameController::class, 'genreFilterGames'])->name('games.genreFilter');
     Route::get('/games/{id}', [GameController::class, 'show'])->name('games.show');
+    Route::post('/games/like', [GameController::class, 'toggleLike'])->name('games.like.toggle');
 
     Route::resource('games', GameController::class);
 });

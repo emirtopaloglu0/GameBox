@@ -1,5 +1,17 @@
 <x-app-layout>
+
+    <!-- show.blade.php -->
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                showToast("{{ session('success') }}", "primary");
+            });
+        </script>
+    @endif
+
     <div class="container py-8">
+
+
 
         <!-- Game Header -->
         <div class="row mb-5">
@@ -61,17 +73,27 @@
                     <!-- Log Butonu -->
                     <button class="btn btn-outline-primary btn-lg rounded-pill" data-bs-toggle="modal"
                         data-bs-target="#logModal">
-                        <i class="bi bi-journal-plus me-2"></i> Log
+                        📝 Log
                     </button>
 
                     <!-- Play Later Butonu -->
                     <button class="btn btn-outline-success btn-lg rounded-pill" data-bs-toggle="modal"
                         data-bs-target="#playLaterModal">
-                        <i class="bi bi-clock me-2"></i> Play Later
+                        ⏳ Play Later
                     </button>
+
+                    <!-- Like Butonu -->
+                    <form action="{{ route('games.like.toggle') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="game_id" value="{{ $game['id'] }}">
+                        <button type="submit" class="btn btn-outline-danger btn-lg rounded-pill w-100">
+                            ❤️
+                            {{ auth()->user()->likes()->where('game_id', $game['id'])->exists() ? 'Unlike' : 'Like' }}
+                        </button>
+                    </form>
                 </div>
             </div>
-            
+
         </div>
 
         <!-- Summary Section -->

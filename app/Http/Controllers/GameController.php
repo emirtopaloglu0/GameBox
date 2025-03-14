@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Like;
+use Illuminate\Container\Attributes\Auth;
 use MarcReichel\IGDBLaravel\Models\Game;
 use MarcReichel\IGDBLaravel\Builder as IGDB;
 
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth as FacadesAuth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+
 
 class GameController extends Controller
 {
@@ -205,6 +209,53 @@ class GameController extends Controller
         return view('games.genre', compact('games', 'genreId', 'page', 'genres', 'sortOrder', 'genreName'));
     }
 
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        $page = $request->input('page', 1);
+        $limit = 15;
+        $offset = ($page - 1) * $limit;
+
+        $response = Http::withHeaders([
+            'Client-ID' => env('IGDB_CLIENT_ID'),
+            'Authorization' => 'Bearer ' . env('IGDB_ACCESS_TOKEN'),
+        ])->withBody(
+            "fields id, name, cover.url, total_rating, total_rating_count;
+         search \"{$query}\";
+         limit $limit;
+         offset $offset;",
+            'text/plain'
+        )->post(env('IGDB_API_URL') . '/games');
+
+        $games = $response->json();
+
+        return view('games.search', compact('games', 'query', 'page'));
+    }
+
+    public function toggleLike(Request $request)
+    {
+        $request->validate([
+            'game_id' => 'required|integer'
+        ]);
+
+        $like = Like::where([
+            'user_id' => FacadesAuth::id(),
+            'game_id' => $request->game_id
+        ])->first();
+
+        if ($like) {
+            $like->delete();
+            $message = 'Game unliked!';
+        } else {
+            Like::create([
+                'user_id' => FacadesAuth::id(),
+                'game_id' => $request->game_id
+            ]);
+            $message = 'Game liked!';
+        }
+
+        return back()->with('success', $message);
+    }
 
 
     /**

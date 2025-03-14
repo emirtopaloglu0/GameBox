@@ -73,8 +73,10 @@
                         @php
                             $highResCover = str_replace('t_thumb', 't_cover_big', $game['cover']['url']);
                         @endphp
-                        <img class="rounded-top-3" src="https:{{ $highResCover }}"
-                            alt="{{ $game['name'] ?? 'Kapak Yok' }}">
+                        <a href="{{ route('games.show', $game['id']) }}" class="stretched-link">
+                            <img class="rounded-top-3" src="https:{{ $highResCover }}"
+                                alt="{{ $game['name'] ?? 'Kapak Yok' }}">
+                        </a>
                     @else
                         <p>Can't Find a Cover Photo</p>
                     @endif

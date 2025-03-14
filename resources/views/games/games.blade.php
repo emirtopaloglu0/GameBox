@@ -1,4 +1,4 @@
-a<x-app-layout>
+<x-app-layout>
 
     <div class="container mt-4">
 

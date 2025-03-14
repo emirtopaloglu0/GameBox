@@ -60,7 +60,8 @@
                 <a href="{{ route('games.genreFilter', [...request()->except('page'), 'page' => $page + 2]) }}"
                     class="page-link">{{ $page + 2 }}</a>
                 <a
-                    href="{{ route('games.genreFilter', [...request()->except('page'), 'page' => $page + 1]) }}"class="page-link">Next →</a>
+                    href="{{ route('games.genreFilter', [...request()->except('page'), 'page' => $page + 1]) }}"class="page-link">Next
+                    →</a>
             @endif
 
         </div>
@@ -74,8 +75,10 @@
                         @php
                             $highResCover = str_replace('t_thumb', 't_cover_big', $game['cover']['url']);
                         @endphp
-                        <img class="rounded-top-3" src="https:{{ $highResCover }}"
-                            alt="{{ $game['name'] ?? 'Kapak Yok' }}">
+                        <a href="{{ route('games.show', $game['id']) }}" class="stretched-link">
+                            <img class="rounded-top-3" src="https:{{ $highResCover }}"
+                                alt="{{ $game['name'] ?? 'Kapak Yok' }}">
+                        </a>
                     @else
                         <p>Can't Find a Cover Photo</p>
                     @endif
