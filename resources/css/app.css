@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@custom-variant dark (&:where(.dark, .dark *));
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
 .body {
@@ -145,4 +146,97 @@
 /* Arama Kutusu Stili */
 .input-group {
     max-width: 400px;
+}
+
+.modal-backdrop {
+    backdrop-filter: blur(5px); /* Arka planı blurlaştır */
+    background-color: rgba(0, 0, 0, 0.5); /* Arka planı koyulaştır */
+}
+
+/* Yıldızlar */
+
+/* These styles are applied by default.
+   They will also override the hover
+   style for all stars to the right
+   of the currently hovered star. */
+.rate i,
+.rate i:hover ~ i {
+    color: #222;
+    text-shadow: none;
+    transition: color 200ms, text-shadow 200ms;
+    /* This will remove the delay when
+       moving the cursor left or right
+       within the set of stars. */
+    transition-delay: 0;
+}
+
+/* This is the style that will be
+     applied to all stars and then
+     subsequently removed from the stars
+     to the right of the one being
+     hovered. */
+.rate:hover i {
+    color: #fc0;
+    text-shadow: #fc0 0 0 20px;
+}
+
+/* Make the effect apply one star at a
+     time. Limiting the selector to when
+     .rate is hovered removes the effect
+     without delay when cursor leaves
+     the .rate area. */
+.rate:hover i:nth-child(2) {
+    transition-delay: 30ms;
+}
+
+.rate:hover i:nth-child(3) {
+    transition-delay: 60ms;
+}
+
+.rate:hover i:nth-child(4) {
+    transition-delay: 90ms;
+}
+
+.rate:hover i:nth-child(5) {
+    transition-delay: 120ms;
+}
+
+/* Miscellaneous styles. */
+.rate i {
+    cursor: pointer;
+    font-style: normal;
+}
+
+/* resources/css/app.css */
+.rating-container {
+    display: inline-block;
+    font-size: 0; /* Yıldızlar arası boşluğu kaldır */
+}
+
+.star {
+    display: inline-block;
+    font-size: 32px;
+    color: #e4e5e9; /* Varsayılan renk (boş yıldız) */
+    cursor: pointer;
+    transition: color 0.2s;
+    position: relative;
+    margin-right: 2px;
+}
+
+/* Yarım Yıldız Efekti */
+.star::before {
+    content: "★";
+    position: absolute;
+    left: 0;
+    width: 50%;
+    overflow: hidden;
+    color: transparent;
+}
+
+.star.half::before {
+    color: #ffd700; /* Yarım yıldız rengi */
+}
+
+.star.active {
+    color: #ffd700; /* Tam yıldız rengi */
 }

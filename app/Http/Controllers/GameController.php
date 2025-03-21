@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Like;
+use App\Models\Log;
+use App\Models\PlayLater;
 use Illuminate\Container\Attributes\Auth;
 use MarcReichel\IGDBLaravel\Models\Game;
 use MarcReichel\IGDBLaravel\Builder as IGDB;
@@ -253,6 +255,53 @@ class GameController extends Controller
             ]);
             $message = 'Game liked!';
         }
+
+        return back()->with('success', $message);
+    }
+
+    public function toggleLater(Request $request)
+    {
+
+        $request->validate([
+            'game_id' => 'required|integer'
+        ]);
+
+        $later = PlayLater::where([
+            'user_id' => FacadesAuth::id(),
+            'game_id' => $request->game_id
+        ])->first();
+
+        if ($later) {
+            $later->delete();
+            $message = 'Game removed from Play Later!';
+        } else {
+            PlayLater::create([
+                'user_id' => FacadesAuth::id(),
+                'game_id' => $request->game_id
+            ]);
+            $message = 'Game added to Play Later!';
+        }
+
+
+        return back()->with('success', $message);
+    }
+
+    public function storeLog(Request $request)
+    {
+        
+        $validated = $request->validate([
+            'game_id' => 'required|integer',
+            'rating' => 'required|numeric|min:0|max:5',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        Log::create([
+            'user_id' => FacadesAuth::id(),
+            'game_id' => $validated['game_id'],
+            'rating' => $validated['rating'],
+            'note' => $validated['notes'],
+        ]);
+        $message = "Game Successfuly Logged!";
 
         return back()->with('success', $message);
     }

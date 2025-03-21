@@ -9,4 +9,6 @@ class PlayLater extends Model
 {
     use HasFactory;
     protected $table = '_play_laters';
+    protected $fillable = ['user_id', 'game_id'];
+
 }

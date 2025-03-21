@@ -70,27 +70,92 @@
 
             <div class="col-md-2">
                 <div class="d-flex flex-column gap-3">
+                    <!-- Played Butonu, Loglamadan oynadımı işaretleyecek sadece -->
+                    <button type="button" class="btn btn-outline-primary btn-lg rounded-pill">
+                        🎮 Play
+                    </button>
+
                     <!-- Log Butonu -->
-                    <button class="btn btn-outline-primary btn-lg rounded-pill" data-bs-toggle="modal"
+                    <!-- Modal Trigger Button -->
+                    <button type="button" class="btn btn-outline-secondary btn-lg rounded-pill" data-bs-toggle="modal"
                         data-bs-target="#logModal">
                         📝 Log
                     </button>
 
+                    <!-- Modal -->
+                    <div class="modal fade" id="logModal" tabindex="-1" aria-labelledby="logModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="logModalLabel">I Played...</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close">Kapat</button>
+                                </div>
+
+                                <!-- Modal Body (Form) -->
+                                <div class="modal-body">
+                                    <form action="{{ route('games.log.store') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="game_id" value="{{ $game['id'] }}">
+
+                                        <!-- Rating -->
+                                        <div class="mb-3">
+                                            <label for="rating" class="form-label">Rating</label>
+                                            {{-- <input type="number" class="form-control" id="rating" name="rating"
+                                                min="1" max="5"> --}}
+                                            <br>
+                                            <div class="stars" data-rating="{{ $game->rating ?? 0 }}">
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    <div class="star" data-value="{{ $i }}">
+                                                        ★
+                                                    </div>
+                                                @endfor
+                                            </div>
+                                            <input type="hidden" name="rating" id="ratingInput"
+                                                value="{{ old('rating', $game->rating ?? 0) }}">
+                                        </div>
+
+                                        <!-- Notes -->
+                                        <div class="mb-3">
+                                            <label for="notes" class="form-label">Review</label>
+                                            <textarea placeholder="Add a review..." class="form-control" id="notes" name="notes" rows="3"></textarea>
+                                        </div>
+
+                                        <!-- Submit Button -->
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Play Later Butonu -->
-                    <button class="btn btn-outline-success btn-lg rounded-pill" data-bs-toggle="modal"
-                        data-bs-target="#playLaterModal">
-                        ⏳ Play Later
-                    </button>
+                    <form action="{{ route('games.later.toggle') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="game_id" value="{{ $game['id'] }}">
+                        <button type="submit"
+                            class="btn {{ auth()->user()->playLater()->where('game_id', $game['id'])->exists() ? 'btn-success' : 'btn-outline-success' }}
+                            btn-lg rounded-pill w-100">
+                            ⏳
+                            {{ auth()->user()->playLater()->where('game_id', $game['id'])->exists() ? 'Remove' : 'Play Later' }}
+                        </button>
+                    </form>
 
                     <!-- Like Butonu -->
                     <form action="{{ route('games.like.toggle') }}" method="POST">
                         @csrf
                         <input type="hidden" name="game_id" value="{{ $game['id'] }}">
-                        <button type="submit" class="btn btn-outline-danger btn-lg rounded-pill w-100">
+                        <button type="submit"
+                            class="btn                              
+                            {{ auth()->user()->likes()->where('game_id', $game['id'])->exists() ? 'btn-danger' : 'btn-outline-danger' }} btn-lg rounded-pill w-100">
                             ❤️
                             {{ auth()->user()->likes()->where('game_id', $game['id'])->exists() ? 'Unlike' : 'Like' }}
                         </button>
                     </form>
+
+
                 </div>
             </div>
 
@@ -105,6 +170,9 @@
                 </div>
             </div>
         @endisset
+
+        {{-- Yorumlar kısmı --}}
+
 
         <!-- 1. Artworks Gallery -->
         @isset($game['artworks'])
@@ -193,7 +261,8 @@
                                 <div class="progress w-50">
                                     <div class="progress-bar bg-primary" role="progressbar"
                                         style="width: {{ $game['total_rating'] }}%"
-                                        aria-valuenow="{{ $game['total_rating'] }}" aria-valuemin="0" aria-valuemax="100">
+                                        aria-valuenow="{{ $game['total_rating'] }}" aria-valuemin="0"
+                                        aria-valuemax="100">
                                         {{ round($game['total_rating'], 1) }}%
                                     </div>
                                 </div>
@@ -258,6 +327,8 @@
                 </div>
             </div>
         @endisset
+        <hr>
+
         <!-- Back Button -->
         <a href="{{ route('games.index') }}" class="btn btn-outline-primary">
             ← Back to All Games

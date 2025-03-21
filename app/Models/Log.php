@@ -10,6 +10,8 @@ class Log extends Model
     use HasFactory;
     protected $table = 'Logs';
     protected $fillable = [
+        'user_id',
+        'game_id',
         'note',
         'rating'
     ];

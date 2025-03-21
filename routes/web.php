@@ -16,7 +16,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/games/genre', [GameController::class, 'genreFilterGames'])->name('games.genreFilter');
     Route::get('/games/{id}', [GameController::class, 'show'])->name('games.show');
     Route::post('/games/like', [GameController::class, 'toggleLike'])->name('games.like.toggle');
-
+    Route::post('/games/later', [GameController::class, 'toggleLater'])->name('games.later.toggle');
+    Route::post('/games/log', [GameController::class, 'storeLog'])->name('games.log.store');
+    
     Route::resource('games', GameController::class);
 });
 
