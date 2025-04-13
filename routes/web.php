@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\LikesController;
+use App\Http\Controllers\LogController;
+use App\Http\Controllers\PlayLaterController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,9 +18,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/games/year', [GameController::class, 'yearFilterGames'])->name('games.yearFilter');
     Route::get('/games/genre', [GameController::class, 'genreFilterGames'])->name('games.genreFilter');
     Route::get('/games/{id}', [GameController::class, 'show'])->name('games.show');
-    Route::post('/games/like', [GameController::class, 'toggleLike'])->name('games.like.toggle');
-    Route::post('/games/later', [GameController::class, 'toggleLater'])->name('games.later.toggle');
-    Route::post('/games/log', [GameController::class, 'storeLog'])->name('games.log.store');
+    Route::post('/games/like', [LikesController::class, 'toggleLike'])->name('games.like.toggle');
+    Route::post('/games/later', [PlayLaterController::class, 'toggleLater'])->name('games.later.toggle');
+    Route::post('/games/log', [LogController::class, 'storeLog'])->name('games.log.store');
     
     Route::resource('games', GameController::class);
 });

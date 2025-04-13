@@ -13,6 +13,7 @@ class Log extends Model
         'user_id',
         'game_id',
         'note',
-        'rating'
+        'rating',
+        'user_likes'
     ];
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer("game_id")->nullable(false);
             $table->text('note')->default(null);
             $table->decimal('rating', 5, 2)->default(null);
+            $table->integer('user_likes')->default(1);
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });

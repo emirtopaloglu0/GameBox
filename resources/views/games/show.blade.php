@@ -11,8 +11,6 @@
 
     <div class="container py-8">
 
-
-
         <!-- Game Header -->
         <div class="row mb-5">
             <div class="col-md-4">
@@ -154,8 +152,6 @@
                             {{ auth()->user()->likes()->where('game_id', $game['id'])->exists() ? 'Unlike' : 'Like' }}
                         </button>
                     </form>
-
-
                 </div>
             </div>
 
@@ -172,7 +168,9 @@
         @endisset
 
         {{-- Yorumlar kısmı --}}
-
+        <div class="card border-0 shadow-sm mb-5">
+            <div class="card-body"></div>
+        </div>
 
         <!-- 1. Artworks Gallery -->
         @isset($game['artworks'])
