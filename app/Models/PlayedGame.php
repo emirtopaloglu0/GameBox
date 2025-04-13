@@ -11,6 +11,12 @@ class PlayedGame extends Model
     protected $table = '_played_games';
 
     protected $fillable = [
-        'rating'
+        'rating',
+        'user_id',
+        'game_id'
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

@@ -16,4 +16,9 @@ class Log extends Model
         'rating',
         'user_likes'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

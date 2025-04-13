@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Comment;
 use App\Models\Like;
+use App\Models\LikedComments;
 use App\Models\Log;
+use App\Models\LogLikes;
 use App\Models\PlayLater;
 use Illuminate\Container\Attributes\Auth;
 use MarcReichel\IGDBLaravel\Models\Game;
@@ -285,8 +288,16 @@ class GameController extends Controller
         if (!$game) {
             return redirect()->route('games.index')->with('error', 'Game not found!');
         }
+        $currentUserId = FacadesAuth::id();
 
-        return view('games.show', compact('game'));
+        $reviews = Log::with('user')
+            ->where('game_id', $id)
+            ->orderByRaw("user_id = ? DESC", [$currentUserId])
+            ->get();
+
+            $comments = Comment::with('logs.user')->get();
+
+        return view('games.show', compact('game', 'reviews', 'comments'));
     }
 
     /**

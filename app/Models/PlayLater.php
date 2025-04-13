@@ -11,4 +11,10 @@ class PlayLater extends Model
     protected $table = '_play_laters';
     protected $fillable = ['user_id', 'game_id'];
 
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    
 }

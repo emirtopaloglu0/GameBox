@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\LikesController;
 use App\Http\Controllers\LogController;
@@ -21,7 +22,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/games/like', [LikesController::class, 'toggleLike'])->name('games.like.toggle');
     Route::post('/games/later', [PlayLaterController::class, 'toggleLater'])->name('games.later.toggle');
     Route::post('/games/log', [LogController::class, 'storeLog'])->name('games.log.store');
-    
+    Route::post('/games/comments', [CommentController::class,'sendComment'])->name('games.log.comments');
+
     Route::resource('games', GameController::class);
 });
 

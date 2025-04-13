@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Like;
 use App\Models\Log;
+use App\Models\PlayedGame;
 use App\Models\PlayLater;
 use Illuminate\Container\Attributes\Auth;
 use MarcReichel\IGDBLaravel\Models\Game;
@@ -34,6 +35,12 @@ class LogController extends Controller
             'note' => $validated['notes'],
         ]);
         $message = "Game Successfuly Logged!";
+
+        PlayedGame::create([
+            'user_id' => FacadesAuth::id(),
+            'game_id' => $validated['game_id'],
+            'rating' => $validated['rating'],
+        ]);
 
         return back()->with('success', $message);
     }
