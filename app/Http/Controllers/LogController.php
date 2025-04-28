@@ -36,11 +36,54 @@ class LogController extends Controller
         ]);
         $message = "Game Successfuly Logged!";
 
+        //Daha önce var mı diye kontrol edeceğiz
         PlayedGame::create([
             'user_id' => FacadesAuth::id(),
             'game_id' => $validated['game_id'],
             'rating' => $validated['rating'],
         ]);
+
+        return back()->with('success', $message);
+    }
+    public function removeLog(Request $request) {
+        $request->validate([
+            'id' => 'required',
+        ]);
+
+        $log = Log::where(
+            [
+                'user_id' => FacadesAuth::id(),
+                'id' => $request->id
+            ]
+        )->delete();
+
+        if ($log)
+            $message = 'Review Removed!';
+        else
+            $message = 'An error has occurred while removing the review!';
+
+
+        return back()->with('success', $message);
+    }
+    public function editLog(Request $request)
+    {
+        $request->validate([
+            'id' => 'required',
+            'notes' => 'required'
+        ]);
+
+        $log = Log::where(
+            [
+                'user_id' => FacadesAuth::id(),
+                'id' => $request->id
+            ]
+        )->update(['note' => $request->notes]);
+
+        if ($log)
+            $message = 'Review Updated!';
+        else
+            $message = 'An error has occurred while editing the review!';
+
 
         return back()->with('success', $message);
     }

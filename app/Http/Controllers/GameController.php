@@ -93,17 +93,17 @@ class GameController extends Controller
         $year = request()->get('years');
 
 
-        $limit = 14; // Sayfa başına 10 oyun göstereceğiz
-        $offset = ($page - 1) * $limit; // Offset hesaplaması düzeltildi
+        $limit = 14;
+        $offset = ($page - 1) * $limit; 
 
-        $sortOrder = $request->query('sort', 'desc'); // Varsayılan sıralama desc
+        $sortOrder = $request->query('sort', 'desc'); 
 
         if ($year) {
-            $startOfYear = strtotime("1 January $year"); // Seçilen yılın başlangıcı
-            $endOfYear = strtotime("31 December $year"); // Seçilen yılın bitişi
+            $startOfYear = strtotime("1 January $year"); 
+            $endOfYear = strtotime("31 December $year"); 
             $yearFilter = "where first_release_date >= $startOfYear & first_release_date <= $endOfYear";
         } else {
-            $yearFilter = ""; // Eğer yıl seçilmemişse, filtreleme yapma
+            $yearFilter = "";
         }
 
         $sortClause = "sort total_rating_count $sortOrder";
@@ -168,7 +168,6 @@ class GameController extends Controller
 
             $genreData = $response->json();
 
-            // Hata kontrolü ekleyelim
             if (empty($genreData) || !isset($genreData[0]['name'])) {
                 return 'Bilinmeyen Tür';
             }
@@ -205,7 +204,6 @@ class GameController extends Controller
 
             $genresData = $response->json();
 
-            // Eğer API'dan düzgün bir dizi gelmezse boş dizi döndür
             return is_array($genresData) ? $genresData : [];
         });
 
@@ -236,7 +234,6 @@ class GameController extends Controller
 
         return view('games.search', compact('games', 'query', 'page'));
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -295,9 +292,11 @@ class GameController extends Controller
             ->orderByRaw("user_id = ? DESC", [$currentUserId])
             ->get();
 
-            $comments = Comment::with('logs.user')->get();
+            $comments = Comment::with('logs.user')->orderByDesc('updated_at')->get();
 
-        return view('games.show', compact('game', 'reviews', 'comments'));
+            $logLikes = LogLikes::with('likes.user')->get();
+
+        return view('games.show', compact('game', 'reviews', 'comments', 'logLikes'));
     }
 
     /**

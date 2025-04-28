@@ -2,10 +2,39 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LogLikes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth as FacadesAuth;
+
 
 class LogLikesController extends Controller
 {
+
+    public function likeLog(Request $request)
+    {
+        $request->validate([
+            'review_id' => 'required|integer'
+        ]);
+
+        $like = LogLikes::where([
+            'user_id' => FacadesAuth::id(),
+            'log_id' => $request->review_id
+        ])->first();
+
+        if ($like) {
+            $like->delete();
+            $message = 'Review unliked!';
+        } else {
+            LogLikes::create([
+                'user_id' => FacadesAuth::id(),
+                'log_id' => $request->review_id
+            ]);
+            $message = 'Review liked!';
+        }
+
+        return back()->with('success', $message);
+    }
+
     /**
      * Display a listing of the resource.
      */

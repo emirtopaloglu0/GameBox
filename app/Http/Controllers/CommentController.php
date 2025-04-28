@@ -32,4 +32,49 @@ class CommentController extends Controller
         return back()->with('success');
 
     }
+    public function removeComment(Request $request) {
+        $request->validate([
+            'id' => 'required',
+        ]);
+
+        $log = Comment::where(
+            [
+                'user_id' => FacadesAuth::id(),
+                'id' => $request->id
+            ]
+        )->delete();
+
+        if ($log)
+            $message = 'Comment Removed!';
+        else
+            $message = 'An error has occurred while removing the comment!';
+
+
+        return back()->with('success', $message);
+    }
+    public function editComment(Request $request)
+    {
+        $request->validate([
+            'id' => 'required',
+            'content' => 'required'
+        ]);
+
+        $log = Comment::where(
+            [
+                'user_id' => FacadesAuth::id(),
+                'id' => $request->id
+            ]
+        )->update(['content' => $request->content]);
+
+        if ($log)
+            $message = 'Comment Updated!';
+        else
+            $message = 'An error has occurred while editing the commnt!';
+
+
+        return back()->with('success', $message);
+    }
+
+
+
 }

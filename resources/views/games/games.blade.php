@@ -24,7 +24,6 @@
             </form>
 
             <form action="">
-                <!-- Sıralama Butonları -->
                 <div class="col-auto">
                     <a href="{{ request()->fullUrlWithQuery(['sort' => 'desc']) }}"
                         class="btn {{ $sortOrder == 'desc' ? 'btn-primary' : 'btn-outline-primary' }}">

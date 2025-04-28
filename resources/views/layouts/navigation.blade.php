@@ -19,7 +19,7 @@
                 </div>
             </div>
 
-            {{-- Arama --}}
+            {{-- Arama Kutusu --}}
             <form action="{{ route('games.search') }}" method="GET" class="d-flex gap-2">
                 <div class="input-group">
                     <input type="text" name="query" class="form-control" placeholder="Search games..."
