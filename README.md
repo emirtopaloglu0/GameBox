@@ -1,18 +1,18 @@
-#GameBox
+# GameBox
 
-IMDB ve Letterboxd'ın oyun versiyonu. Oyunlara inceleme bırakmak ve değerlendirmek, kendinize ait bir oynatma listenizin olması gibi birçok özelliği barındırıyor. 
---Geliştirme aşamasında--
+<p>IMDB ve Letterboxd'ın oyun versiyonu. Oyunlara inceleme bırakmak ve değerlendirmek, kendinize ait bir oynatma listenizin olması gibi birçok özelliği barındırıyor. </p> <br/>
+<p> --Geliştirme aşamasında-- </p> 
 
-##Ana Sayfa
+## Ana Sayfa
 ![MainPage](https://github.com/user-attachments/assets/f99529e9-cbcc-4a4d-974d-6fb28693cf09)
 
-##Yıl Filtrelemesi ile Gelen Oyunlar
+## Yıl Filtrelemesi ile Gelen Oyunlar
 ![Year Filter](https://github.com/user-attachments/assets/ac48737a-523f-44e3-8eef-b1d029110485)
 
-##Tür Filtrelemesi ile Gelen Oyunlar
+## Tür Filtrelemesi ile Gelen Oyunlar
 ![GenreFilter](https://github.com/user-attachments/assets/83382427-41d7-40fa-9d6b-e3d6799893d9)
 
-##Oyunların Detaylı Sayfası
+## Oyunların Detaylı Sayfası
 ![GamePage1](https://github.com/user-attachments/assets/36d12ad7-42e4-4a8c-8d7b-fa5241ead864)
 ![GamePage2](https://github.com/user-attachments/assets/6aadbd07-7b8b-46df-9d62-f1b87678fa32)
 ![GamePage3](https://github.com/user-attachments/assets/c15754b2-1ac5-4b7a-8ccc-61ebee727b26)
