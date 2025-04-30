@@ -5,6 +5,7 @@ use App\Http\Controllers\GameController;
 use App\Http\Controllers\LikesController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\LogLikesController;
+use App\Http\Controllers\PlayedGameController;
 use App\Http\Controllers\PlayLaterController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/games/genre', [GameController::class, 'genreFilterGames'])->name('games.genreFilter');
     Route::get('/games/{id}', [GameController::class, 'show'])->name('games.show');
     Route::post('/games/like', [LikesController::class, 'toggleLike'])->name('games.like.toggle');
+    Route::post('/games/play', [PlayedGameController::class, 'togglePlay'])->name('games.play.toggle');
     Route::post('/games/later', [PlayLaterController::class, 'toggleLater'])->name('games.later.toggle');
     Route::post('/games/log', [LogController::class, 'storeLog'])->name('games.log.store');
     Route::post('/games/log/edit', [LogController::class, 'editLog'])->name('games.log.edit');
@@ -37,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/show', [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

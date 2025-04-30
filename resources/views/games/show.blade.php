@@ -74,9 +74,16 @@
             <div class="col-md-2">
                 <div class="d-flex flex-column gap-3">
                     <!-- Played Butonu, Loglamadan oynadımı işaretleyecek sadece -->
-                    <button type="button" class="btn btn-outline-primary btn-lg rounded-pill">
-                        🎮 Play
-                    </button>
+                    <form action="{{ route('games.play.toggle') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="game_id" value="{{ $game['id'] }}">
+                        <button type="submit"
+                            class="btn                              
+                            {{ auth()->user()->playedGames()->where('game_id', $game['id'])->exists() ? 'btn-primary' : 'btn-outline-primary' }} btn-lg rounded-pill w-100">
+                            🎮
+                            {{ auth()->user()->playedGames()->where('game_id', $game['id'])->exists() ? 'Played' : 'Play' }}
+                        </button>
+                    </form>
 
                     <!-- Log Butonu -->
                     <!-- Modal Trigger Button -->
@@ -93,7 +100,7 @@
                                 <!-- Modal Header -->
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="logModalLabel">I Played...</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
                                         aria-label="Close">Close</button>
                                 </div>
 
@@ -171,7 +178,7 @@
             </div>
         @endisset
 
-        {{-- Logs / Comment kısmı, yorum aktif kullanıcıya aitse düzenle ve sil düğmesi eklenecek. --}}
+        {{-- Logs / Comment kısmı --}}
 
 
         <div class="card border-0 shadow-sm mb-5">
@@ -191,16 +198,16 @@
                     <div class="card mb-3 shadow-sm">
                         @if ($review->user_id == auth()->user()->id)
                             <div style="padding: 10px; display: flex">
-                                <form action="{{ route('games.log.remove') }}" method="POST">
+                                <button style="margin-right: 10px" class="btn btn-dark" data-bs-toggle="modal"
+                                    data-bs-target="#removeLogModal" removeLog-data-id="{{ $review->id }}"
+                                    onclick="fillRemoveLogModalFields(this)">
+                                    Remove
+                                </button>
 
-                                    @csrf
-                                    <input type="hidden" name="id" value="{{ $review->id }}">
-                                    <button class="btn btn-secondary">Remove 🗑️</button>
-                                </form>
                                 <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal"
                                     data-id="{{ $review->id }}" data-text="{{ e($review->note) }}"
                                     onclick="fillModalFields(this)">
-                                    Edit 🖊️
+                                    Edit
                                 </button>
                             </div>
                         @endif
@@ -280,15 +287,15 @@
                                                             {{ $comment->created_at->diffForHumans() }}</div>
                                                         @if ($comment->user_id == auth()->user()->id)
                                                             <div style="padding: 10px; display: flex">
-                                                                <form action="{{ route('games.comment.remove') }}"
-                                                                    method="POST">
 
-                                                                    @csrf
-                                                                    <input type="hidden" name="id"
-                                                                        value="{{ $comment->id }}">
-                                                                    <button class="btn btn-secondary btn-sm">
-                                                                        Remove</button>
-                                                                </form>
+                                                                <button style="margin-right: 10px"
+                                                                    class="btn btn-secondary" data-bs-toggle="modal"
+                                                                    data-bs-target="#removeCommentModal"
+                                                                    removeComment-data-id="{{ $comment->id }}"
+                                                                    onclick="fillRemoveCommentModalFields(this)">
+                                                                    Remove
+                                                                </button>
+
                                                                 <button class="btn btn-warning btn-sm"
                                                                     data-bs-toggle="modal"
                                                                     data-bs-target="#commentModal"
@@ -524,7 +531,7 @@
                     <!-- Modal Header -->
                     <div class="modal-header">
                         <h5 class="modal-title" id="editModalLabel">Editing...</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
                             aria-label="Close">Close</button>
                     </div>
 
@@ -556,7 +563,7 @@
                     <!-- Modal Header -->
                     <div class="modal-header">
                         <h5 class="modal-title" id="commentModalLabel">Editing...</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
                             aria-label="Close">Close</button>
                     </div>
 
@@ -579,6 +586,60 @@
                 </div>
             </div>
         </div>
+
+        {{-- Remove Log Modal --}}
+        <div class="modal fade" id="removeLogModal" tabindex="-1" aria-labelledby="removeLogModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="removeLogModalLabel">Are you sure?</h5>
+                        <button type="button" class="btn btn-gray" data-bs-dismiss="modal"
+                            aria-label="Close">Close</button>
+                    </div>
+
+                    <!-- Modal Body (Form) -->
+                    <div class="modal-body">
+                        <form action="{{ route('games.log.remove') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="id" id="removeLog_modalHiddenId">
+                            <button class="btn btn-danger">Remove</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Remove Comment Modal --}}
+        <div class="modal fade" id="removeCommentModal" tabindex="-1" aria-labelledby="removeCommentModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="removeCommentModalLabel">Are you sure?</h5>
+                        <button type="button" class="btn btn-gray" data-bs-dismiss="modal"
+                            aria-label="Close">Close</button>
+                    </div>
+
+                    <!-- Modal Body (Form) -->
+                    <div class="modal-body">
+                        <form action="{{ route('games.comment.remove') }}" method="POST">
+
+                            @csrf
+                            <input type="hidden" name="id" id="removeComment_modalHiddenId">
+                            <button class="btn btn-danger btn-sm">
+                                Remove</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
     </div>
 
 
@@ -609,5 +670,17 @@
 
         document.getElementById('comment_modalTextarea').value = text;
         document.getElementById('comment_modalHiddenId').value = id;
+    }
+
+    function fillRemoveLogModalFields(button) {
+        var id = button.getAttribute('removeLog-data-id');
+
+        document.getElementById('removeLog_modalHiddenId').value = id;
+    }
+
+    function fillRemoveCommentModalFields(button) {
+        var id = button.getAttribute('removeComment-data-id');
+
+        document.getElementById('removeComment_modalHiddenId').value = id;
     }
 </script>

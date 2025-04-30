@@ -57,6 +57,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(LogLikes::class);
     }
 
+    public function playedGames()
+    {
+        return $this->hasMany(PlayedGame::class);
+    }
+
 
     public function playLater()
     {

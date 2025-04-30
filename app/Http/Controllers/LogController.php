@@ -37,15 +37,26 @@ class LogController extends Controller
         $message = "Game Successfuly Logged!";
 
         //Daha önce var mı diye kontrol edeceğiz
-        PlayedGame::create([
+
+        $playedGame = PlayedGame::where([
             'user_id' => FacadesAuth::id(),
-            'game_id' => $validated['game_id'],
-            'rating' => $validated['rating'],
-        ]);
+            'game_id' => $request->game_id
+        ])->first();
+
+        if ($playedGame) {
+            $playedGame->update(['rating' => $validated['rating']]);
+        } else {
+            PlayedGame::create([
+                'user_id' => FacadesAuth::id(),
+                'game_id' => $validated['game_id'],
+                'rating' => $validated['rating'],
+            ]);
+        }
 
         return back()->with('success', $message);
     }
-    public function removeLog(Request $request) {
+    public function removeLog(Request $request)
+    {
         $request->validate([
             'id' => 'required',
         ]);
