@@ -1,12 +1,242 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@custom-variant dark (&:where(.dark, .dark *));
+@import "bootstrap-icons/font/bootstrap-icons.css";
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source "../**/*.blade.php";
-@source "../**/*.js";
-@source "../**/*.vue";
+.body {
+    background-color: #14181c;
+    color: #fefefe;
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+.game-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.game-card {
+    width: 200px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+    margin-right: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.game-card h2 {
+    min-height: 50px; /* Başlık alanını sabitle */
+    font-size: 16px;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* Uzun başlıkları tek satırda tut */
+}
+
+.game-card img {
+    width: 180px;
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    /* width: 100%;
+    height: auto; */
+}
+
+.page-link {
+    /* background-color: #00ac1c;
+    color: #f8fdf9; */
+    border-radius: 5px;
+    /* border-color: #14181c; */
+}
+
+.game-card:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+.game-card:hover img {
+    transform: scale(1.1);
+}
+
+.game-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.game-card:hover::after {
+    opacity: 1;
+}
+
+.game-card-small {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.game-card-small:hover {
+    transform: translateY(-5px);
+}
+
+.hover-zoom {
+    transition: transform 0.3s;
+    cursor: zoom-in;
+}
+
+.progress {
+    height: 25px;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+/* Like Butonu Animasyonu */
+.btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Aktif Like Stili */
+.btn-liked {
+    background: #dc3545 !important;
+    color: white !important;
+}
+
+/* Özel Alert Stili */
+.alert {
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Kapatma Butonu */
+.btn-close {
+    filter: invert(1);
+}
+
+/* Arama Kutusu Stili */
+.input-group {
+    max-width: 400px;
+}
+
+.modal-backdrop {
+    backdrop-filter: blur(5px); /* Arka planı blurlaştır */
+    background-color: rgba(0, 0, 0, 0.5); /* Arka planı koyulaştır */
+}
+
+/* Yıldızlar */
+
+/* These styles are applied by default.
+   They will also override the hover
+   style for all stars to the right
+   of the currently hovered star. */
+.rate i,
+.rate i:hover ~ i {
+    color: #222;
+    text-shadow: none;
+    transition: color 200ms, text-shadow 200ms;
+    /* This will remove the delay when
+       moving the cursor left or right
+       within the set of stars. */
+    transition-delay: 0;
+}
+
+/* This is the style that will be
+     applied to all stars and then
+     subsequently removed from the stars
+     to the right of the one being
+     hovered. */
+.rate:hover i {
+    color: #fc0;
+    text-shadow: #fc0 0 0 20px;
+}
+
+/* Make the effect apply one star at a
+     time. Limiting the selector to when
+     .rate is hovered removes the effect
+     without delay when cursor leaves
+     the .rate area. */
+.rate:hover i:nth-child(2) {
+    transition-delay: 30ms;
+}
+
+.rate:hover i:nth-child(3) {
+    transition-delay: 60ms;
+}
+
+.rate:hover i:nth-child(4) {
+    transition-delay: 90ms;
+}
+
+.rate:hover i:nth-child(5) {
+    transition-delay: 120ms;
+}
+
+/* Miscellaneous styles. */
+.rate i {
+    cursor: pointer;
+    font-style: normal;
+}
+
+/* resources/css/app.css */
+.rating-container {
+    display: inline-block;
+    font-size: 0; /* Yıldızlar arası boşluğu kaldır */
+}
+
+.star {
+    display: inline-block;
+    font-size: 32px;
+    color: #e4e5e9; /* Varsayılan renk (boş yıldız) */
+    cursor: pointer;
+    transition: color 0.2s;
+    position: relative;
+    margin-right: 2px;
+}
+
+/* Yarım Yıldız Efekti */
+.star::before {
+    content: "★";
+    position: absolute;
+    left: 0;
+    width: 50%;
+    overflow: hidden;
+    color: transparent;
+}
+
+.star.half::before {
+    color: #ffd700; /* Yarım yıldız rengi */
+}
+
+.star.active {
+    color: #ffd700; /* Tam yıldız rengi */
 }
