@@ -61,25 +61,26 @@ class GameController extends Controller
 
 
         // Cache key'i oluştur (yıl ve sayfa numarasına göre)
-        $cacheKey = "games-year-$year-page-$page-sort-$sortOrder";
+        // $cacheKey = "games-year-$year-page-$page-sort-$sortOrder";
 
-        $games = Cache::remember($cacheKey, 3600, function () use ($limit, $offset, $sortClause) {
 
-            $response = Http::withHeaders([
-                'Client-ID' => env('IGDB_CLIENT_ID'),
-                'Authorization' => 'Bearer ' . env('IGDB_ACCESS_TOKEN'),
-            ])->withBody(
-                "fields id, name, cover.url, total_rating, total_rating_count; 
+        $response = Http::withHeaders([
+            'Client-ID' => env('IGDB_CLIENT_ID'),
+            'Authorization' => 'Bearer ' . env('IGDB_ACCESS_TOKEN'),
+        ])->withBody(
+            "fields id, name, cover.url, total_rating, total_rating_count; 
             $sortClause;
             limit $limit; 
             offset $offset;",
-                'text/plain'
-            )->post(env('IGDB_API_URL') . '/games');
-            return $response->json();
-        });
+            'text/plain'
+        )->post(env('IGDB_API_URL') . '/games');
+
+        $games = $response;
+
+
 
         // Gelen veriyi JSON olarak al
-        // $games = $response->json();
+        $games = $response->json();
 
 
         // return view('games', ['games' => $games]);
@@ -94,13 +95,13 @@ class GameController extends Controller
 
 
         $limit = 14;
-        $offset = ($page - 1) * $limit; 
+        $offset = ($page - 1) * $limit;
 
-        $sortOrder = $request->query('sort', 'desc'); 
+        $sortOrder = $request->query('sort', 'desc');
 
         if ($year) {
-            $startOfYear = strtotime("1 January $year"); 
-            $endOfYear = strtotime("31 December $year"); 
+            $startOfYear = strtotime("1 January $year");
+            $endOfYear = strtotime("31 December $year");
             $yearFilter = "where first_release_date >= $startOfYear & first_release_date <= $endOfYear";
         } else {
             $yearFilter = "";
@@ -292,9 +293,9 @@ class GameController extends Controller
             ->orderByRaw("user_id = ? DESC", [$currentUserId])
             ->get();
 
-            $comments = Comment::with('logs.user')->orderByDesc('updated_at')->get();
+        $comments = Comment::with('logs.user')->orderByDesc('updated_at')->get();
 
-            $logLikes = LogLikes::with('likes.user')->get();
+        $logLikes = LogLikes::with('likes.user')->get();
 
         return view('games.show', compact('game', 'reviews', 'comments', 'logLikes'));
     }

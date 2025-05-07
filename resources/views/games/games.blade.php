@@ -1,5 +1,4 @@
 <x-app-layout>
-
     <div class="container mt-4">
 
         <br>
@@ -37,7 +36,7 @@
             </form>
 
         </div>
-
+        {{-- sayfa numaraları --}}
         <div class="pagination justify-content-end">
             @if ($page > 1)
                 <a href="{{ request()->fullUrlWithQuery(['page' => $page - 1, 'sort' => $sortOrder]) }} "
@@ -73,7 +72,7 @@
                         @php
                             $highResCover = str_replace('t_thumb', 't_cover_big', $game['cover']['url']);
                         @endphp
-                        <a href="{{ route('games.show', $game['id']) }}"  class="stretched-link">
+                        <a href="{{ route('games.show', $game['id']) }}" class="stretched-link">
                             <img class="rounded-top-3" src="https:{{ $highResCover }}"
                                 alt="{{ $game['name'] ?? 'Kapak Yok' }}">
                         </a>

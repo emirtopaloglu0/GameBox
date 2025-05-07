@@ -97,6 +97,8 @@
         </div>
         <br>
 
-
+        <footer>
+            <p>* This votes are general ratings</p>
+        </footer>
     </div>
 </x-app-layout>
