@@ -240,3 +240,10 @@
 .star.active {
     color: #ffd700; /* Tam yıldız rengi */
 }
+
+.comments{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+}

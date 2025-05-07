@@ -353,7 +353,9 @@
 
                             </div>
                         </div>
-                        <a href="" class="btn btn-light">See All Comments</a>
+
+                        <a href="{{ route('games.comments', $review->id) }}" class="btn btn-light">See All
+                            Comments</a>
 
                     @empty
                         <p class="text-muted">There are no reviews yet...</p>
@@ -554,6 +556,30 @@
             </div>
         </div>
 
+        {{-- Remove Log Modal --}}
+        <div class="modal fade" id="removeLogModal" tabindex="-1" aria-labelledby="removeLogModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="removeLogModalLabel">Are you sure?</h5>
+                        <button type="button" class="btn btn-gray" data-bs-dismiss="modal"
+                            aria-label="Close">Close</button>
+                    </div>
+
+                    <!-- Modal Body (Form) -->
+                    <div class="modal-body">
+                        <form action="{{ route('games.log.remove') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="id" id="removeLog_modalHiddenId">
+                            <button class="btn btn-danger">Remove</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Comment Modal -->
         <div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel"
@@ -581,30 +607,6 @@
 
                             <!-- Submit Button -->
                             <button type="submit" class="btn btn-primary">Save</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Remove Log Modal --}}
-        <div class="modal fade" id="removeLogModal" tabindex="-1" aria-labelledby="removeLogModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <!-- Modal Header -->
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="removeLogModalLabel">Are you sure?</h5>
-                        <button type="button" class="btn btn-gray" data-bs-dismiss="modal"
-                            aria-label="Close">Close</button>
-                    </div>
-
-                    <!-- Modal Body (Form) -->
-                    <div class="modal-body">
-                        <form action="{{ route('games.log.remove') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="id" id="removeLog_modalHiddenId">
-                            <button class="btn btn-danger">Remove</button>
                         </form>
                     </div>
                 </div>
