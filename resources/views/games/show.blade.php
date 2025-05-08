@@ -181,8 +181,8 @@
         {{-- Logs / Comment kısmı --}}
 
 
-        <div class="card border-0 shadow-sm mb-5">
-            <div class="card-body">
+        <div class="">
+            <div class="">
                 <h2 class="card-title mb-4">📝 Reviews</h2>
                 @forelse($reviews as $review)
                     @php
@@ -270,11 +270,12 @@
                                         </i>
                                     @endif
                                 </p>
-
+                                <br>
                                 {{-- Yorum Kısmı  --}}
                                 <div class="mb-2">
+                                    <h6 class="text-secondary">Comments</h6>
+                                    <hr>
                                     <div class="rounded p-2 border mt-2">
-                                        <h6 class="text-secondary">Comments</h6>
                                         @foreach ($comments as $comment)
                                             @if ($review->id == $comment->parent_id)
                                                 @if ($comment_counter <= 1)
@@ -284,10 +285,10 @@
 
                                                         <span>{{ $comment->content }}</span>
                                                         <div class="text-muted small">
-                                                            {{ $comment->created_at->diffForHumans() }}</div>
+                                                            {{ $comment->created_at->diffForHumans() }}
+                                                        
                                                         @if ($comment->user_id == auth()->user()->id)
-                                                            <div style="padding: 10px; display: flex">
-
+                                                            <div style="padding-bottom: 10px; display: flex">
                                                                 <button style="margin-right: 10px"
                                                                     class="btn btn-secondary" data-bs-toggle="modal"
                                                                     data-bs-target="#removeCommentModal"
@@ -306,6 +307,8 @@
                                                                 </button>
                                                             </div>
                                                         @endif
+                                                    </div>
+                                                    
                                                     </div>
                                                     @php
                                                         $comment_counter++;
@@ -356,6 +359,7 @@
 
                         <a href="{{ route('games.comments', $review->id) }}" class="btn btn-light">See All
                             Comments</a>
+                        </div>
 
                     @empty
                         <p class="text-muted">There are no reviews yet...</p>

@@ -1,19 +1,21 @@
 <x-app-layout>
     @php
         $like_counter = 0;
+        $last_likedReview = 0;
     @endphp
 
     <div class="container">
         <div class="card" style="margin: 10px;">
             <div class="card-body">
+                <div class="d-flex flex-column mb-3">
                 @foreach ($reviews as $review)
-                    <h6 class="mb-2">
+                    <h6 class="pb-2">
                         <i class="bi bi-person-circle me-1"></i>
                         {{ $review->user->username ?? 'Bilinmeyen Kullanıcı' }}
                     </h6>
 
                     {{-- Yıldızlı Puanlama --}}
-                    <div class="mb-2">
+                    <div class="pb-2">
                         @php
                             $stars = floor($review->rating);
                             $half = $review->rating - $stars >= 0.5 ? true : false;
@@ -35,7 +37,7 @@
                     </div>
 
                     {{-- Beğeni Sayısı  --}}
-                    <p class="mb-0">
+                    <p class="pb-2">
                         @foreach ($logLikes as $like)
                             @if ($like->log_id == $review->id)
                                 @php
@@ -58,7 +60,7 @@
                     </p>
 
                     {{-- İnceleme Notu --}}
-                    <div class="mb-2">
+                    <div class="pb-2">
                         <p class="card-text lead">{{ $review->note }}</p>
                     </div>
 
@@ -71,7 +73,23 @@
 
                         <button type="submit" class="btn btn-primary">Send</button>
                     </form>
+
+                    <div class="ms-auto p-2 " style="padding-left: 10px;">
+                        <!-- Like Butonu -->
+                        <form action="{{ route('games.log.like') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="review_id" value="{{ $review->id }}">
+                            <button type="submit"
+                                class="btn                              
+{{ auth()->user()->log_likes()->where('log_id', $review->id)->exists() ? 'btn-danger' : 'btn-outline-danger' }}">
+
+                                {{ auth()->user()->log_likes()->where('log_id', $review->id)->exists() ? '❤︎' : '❤️' }}
+                            </button>
+                        </form>
+                    </div>
                 @endforeach
+            </div>
+
             </div>
         </div>
 
@@ -82,22 +100,24 @@
         @foreach ($comments as $comment)
             <div class="card" style="margin: 10px">
                 <div class="card-body">
-                    <div class="flex flex-row">
-                        <h6 class="basis-64">
-                            <i class="bi bi-person-circle me-1"></i>
-                            {{ $comment->user->username ?? 'Bilinmeyen Kullanıcı' }}
-                        </h6>
+                    <div class="d-flex mb-3">
 
-                        <div class="basis-64">
+
+                        <div class="me-auto p-2">
+                            <h6 style="margin-bottom: 10px;">
+                                <i class="bi bi-person-circle me-1"></i>
+                                {{ $comment->user->username ?? 'Bilinmeyen Kullanıcı' }}
+                            </h6>
                             <p class="card-text lead">{{ $comment->content }}</p>
                         </div>
 
-
-                        <div class="size-14 grow">
+                        <div class="p-2">
                             <div class="text-muted small">
                                 {{ $comment->created_at->diffForHumans() }}</div>
+                        </div>
+                        <div class="p-2">
                             @if ($comment->user_id == auth()->user()->id)
-                                <div style="padding: 10px; display: flex">
+                                <div style="display: flex">
 
                                     <button style="margin-right: 10px" class="btn btn-secondary" data-bs-toggle="modal"
                                         data-bs-target="#removeCommentModal"
