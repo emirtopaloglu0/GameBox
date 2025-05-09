@@ -9,7 +9,7 @@
     <div class="container py-8">
         <br>
         <div class="d-flex  justify-content-evenly mb-4">
-            <a class="btn btn-outline-primary" href="">See All Played Games</a>
+            <a class="btn btn-outline-primary" href="{{ route('games.played.show') }}">See All Played Games</a>
             <a class="btn btn-outline-primary" href="">See All Reviews</a>
             <a class="btn btn-outline-primary" href="">See All Liked Games</a>
             <a class="btn btn-outline-primary" href="">Play Later List</a>
@@ -22,8 +22,8 @@
 
 
         <div class="d-lg-flex justify-content-center row row-cols-1 row-cols-md-3 row-cols-lg-5 g-4" style="gap: 15px;">
-
             @foreach ($games as $game)
+
                 @if ($counter < 5)
                     <div class="game-card-profile">
                         {{-- <h2 style="font-size: larger">{{ $game['name'] }}</h2> --}}
@@ -104,13 +104,14 @@
                         @if ((int) $review['user_id'] == auth()->user()->id)
                             <div style="padding: 10px; display: flex">
                                 <button style="margin-right: 10px" class="btn btn-dark" data-bs-toggle="modal"
-                                    data-bs-target="#removeLogModal" removeLog-data-id="{{ (int) $review['id'] }}"
+                                    data-bs-target="#removeLogModal"
+                                    removeLog-data-id="{{ (int) $review['review_id'] }}"
                                     onclick="fillRemoveLogModalFields(this)">
                                     Remove
                                 </button>
 
                                 <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal"
-                                    data-id="{{ (int) $review['id'] }}" data-text="{{ e($review['note']) }}"
+                                    data-id="{{ (int) $review['review_id'] }}" data-text="{{ e($review['note']) }}"
                                     onclick="fillModalFields(this)">
                                     Edit
                                 </button>
@@ -286,4 +287,113 @@
     </div>
     </div>
     </div>
+
+    <!-- Review Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Editing...</h5>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                        aria-label="Close">Close</button>
+                </div>
+
+                <!-- Modal Body (Form) -->
+                <div class="modal-body">
+                    <form action="{{ route('games.log.edit') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="id" id="modalHiddenId">
+                        <!-- Notes -->
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Review</label>
+                            <textarea placeholder="Edit review..." class="form-control" id="modalTextarea" name="notes" rows="3"></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Remove Log Modal --}}
+    <div class="modal fade" id="removeLogModal" tabindex="-1" aria-labelledby="removeLogModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeLogModalLabel">Are you sure?</h5>
+                    <button type="button" class="btn btn-gray" data-bs-dismiss="modal"
+                        aria-label="Close">Close</button>
+                </div>
+
+                <!-- Modal Body (Form) -->
+                <div class="modal-body">
+                    <form action="{{ route('games.log.remove') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="id" id="removeLog_modalHiddenId">
+                        <button class="btn btn-danger">Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="back-to-top" title="Go to top">
+        <i class="bi bi-arrow-up"></i>
+    </button>
 </x-app-layout>
+
+
+
+<script>
+    function fillModalFields(button) {
+        var text = button.getAttribute('data-text');
+        var id = button.getAttribute('data-id');
+
+        document.getElementById('modalTextarea').value = text;
+        document.getElementById('modalHiddenId').value = id;
+    }
+
+    function fillCommentModalFields(button) {
+        var text = button.getAttribute('comment-data-text');
+        var id = button.getAttribute('comment-data-id');
+
+        document.getElementById('comment_modalTextarea').value = text;
+        document.getElementById('comment_modalHiddenId').value = id;
+    }
+
+    function fillRemoveLogModalFields(button) {
+        var id = button.getAttribute('removeLog-data-id');
+
+        document.getElementById('removeLog_modalHiddenId').value = id;
+    }
+
+    function fillRemoveCommentModalFields(button) {
+        var id = button.getAttribute('removeComment-data-id');
+
+        document.getElementById('removeComment_modalHiddenId').value = id;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const backToTopButton = document.querySelector('.back-to-top');
+
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopButton.style.display = 'block';
+            } else {
+                backToTopButton.style.display = 'none';
+            }
+        });
+
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>

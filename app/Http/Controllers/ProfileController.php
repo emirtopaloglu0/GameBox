@@ -21,11 +21,6 @@ class ProfileController extends Controller
 
     public function show()
     {
-        $limit = 10;
-        $offset = 0;
-
-        $sortClause = "sort total_rating_count desc";
-
         $games = [];
         $currentUserId = Auth::id();
 
@@ -37,20 +32,19 @@ class ProfileController extends Controller
             ->toArray();
 
         $gameIds = implode(',', $gameIds);
-
         $response = Http::withHeaders([
             'Client-ID' => env('IGDB_CLIENT_ID'),
             'Authorization' => 'Bearer ' . env('IGDB_ACCESS_TOKEN'),
         ])->withBody(
             "fields id, name, cover.url, total_rating, total_rating_count; 
-             $sortClause;
-             where id = ($gameIds);",
+             where id = ($gameIds);
+             limit 100;",
             'text/plain'
         )->post(env('IGDB_API_URL') . '/games');
 
+
         // Gelen veriyi JSON olarak al
         $apiGames = collect($response->json());
-
         $games = $playedGames->map(function ($played) use ($apiGames) {
             $game = $apiGames->firstWhere('id', $played->game_id);
 
@@ -107,20 +101,69 @@ class ProfileController extends Controller
             return $game ? array_merge($game, [
                 'updated_at' => $review->updated_at,
                 'note' => $review->note,
-                'user_id'=>$review->user->id,
+                'user_id' => $review->user->id,
                 'username' => $review->user->username,
                 'review_id' => $review->id,
                 'rating' => $review->rating
             ]) : null;
-        })->filter(); 
+        })->filter();
 
         return $sortedReviews;
-
     }
 
     public function GetComments()
     {
         return Comment::with('logs.user')->orderByDesc('updated_at')->get();
+    }
+
+
+    public function showPlayed(Request $request)
+    {
+
+        $limit = 9; // sayfa başına gösterilecek veri
+        $page = $request->input('page', 1);
+        $offset = ($page - 1) * $limit;
+
+
+        $games = [];
+        $currentUserId = Auth::id();
+
+        $playedGames = PlayedGame::with('user')
+            ->where('user_id', $currentUserId)
+            ->orderByDesc('updated_at')->get();
+
+        $gameIds = $playedGames->pluck('game_id')
+            ->toArray();
+
+        $gameIds = implode(',', $gameIds);
+
+        $response = Http::withHeaders([
+            'Client-ID' => env('IGDB_CLIENT_ID'),
+            'Authorization' => 'Bearer ' . env('IGDB_ACCESS_TOKEN'),
+        ])->withBody(
+            "fields id, name, cover.url, total_rating, total_rating_count; 
+             where id = ($gameIds);
+             limit " . ($limit + 1) . ";
+             offset $offset;",
+            'text/plain'
+        )->post(env('IGDB_API_URL') . '/games');
+
+        $pageCOntrol = $response->json();
+
+        // Gelen veriyi JSON olarak al
+        $apiGames = collect($response->json());
+
+        $games = $playedGames->map(function ($played) use ($apiGames) {
+            $game = $apiGames->firstWhere('id', $played->game_id);
+
+            return $game ? array_merge($game, [
+                'played_at' => $played->updated_at,
+                'rating' => $played->rating
+            ]) : null;
+        })->filter(); // null olanları at
+        $hasNextPage = count($pageCOntrol) > $limit;
+
+        return view('profile.allPlayedGames', compact('games', 'page', 'hasNextPage'));
     }
 
 

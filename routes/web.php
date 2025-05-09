@@ -22,7 +22,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/games/genre', [GameController::class, 'genreFilterGames'])->name('games.genreFilter');
     Route::get('/games/{id}', [GameController::class, 'show'])->name('games.show');
     Route::get('/comments/{id}', [CommentController::class, 'index'])->name('games.comments');
-   
+
+
     Route::post('/games/like', [LikesController::class, 'toggleLike'])->name('games.like.toggle');
     Route::post('/games/play', [PlayedGameController::class, 'togglePlay'])->name('games.play.toggle');
     Route::post('/games/later', [PlayLaterController::class, 'toggleLater'])->name('games.later.toggle');
@@ -40,8 +41,10 @@ Route::middleware(['auth'])->group(function () {
 
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::get('/profile/show', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/played', [ProfileController::class, 'showPlayed'])->name('games.played.show');
+
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
