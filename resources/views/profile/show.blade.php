@@ -202,8 +202,8 @@
                                     <!-- Yorumlar -->
                                     <div class="mb-3">
                                         <h6 class="text-secondary mb-2">Comments</h6>
+                                        @php $comment_counter = 0; @endphp
                                         <div class="border rounded p-2 bg-light">
-                                            @php $comment_counter = 0; @endphp
                                             @foreach ($comments as $comment)
                                                 @if ((int) $review['review_id'] == $comment->parent_id && $comment_counter < 2)
                                                     <div class="mb-2 pb-2 border-bottom">
@@ -245,10 +245,11 @@
                                     <!-- Yorum Formu -->
                                     <form method="POST" action="{{ route('games.log.comments') }}" class="mt-3">
                                         @csrf
-                                        <input type="hidden" name="parent_id" value="{{ (int) $review['review_id'] }}">
+                                        <input type="hidden" name="parent_id"
+                                            value="{{ (int) $review['review_id'] }}">
                                         <div class="input-group">
                                             <input type="text" name="reply" class="form-control"
-                                                placeholder="Write a reply...">
+                                                placeholder="Write a comment...">
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="bi bi-send"></i> Send
                                             </button>

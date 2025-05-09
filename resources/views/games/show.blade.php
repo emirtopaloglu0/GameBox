@@ -12,6 +12,7 @@
         $comment_counter = 0;
         $like_counter = 0;
         $last_likedReview = 0;
+        $review_counter = 1;
     @endphp
 
     <div class="container py-8">
@@ -179,8 +180,6 @@
         @endisset
 
         {{-- Logs / Comment kısmı --}}
-
-
         <div class="">
             <div class="">
                 <h2 class="card-title mb-4">📝 Reviews</h2>
@@ -195,174 +194,186 @@
                         @endphp
                     @endif
 
-                    <div class="card mb-3 shadow-sm">
-                        @if ($review->user_id == auth()->user()->id)
-                            <div style="padding: 10px; display: flex">
-                                <button style="margin-right: 10px" class="btn btn-dark" data-bs-toggle="modal"
-                                    data-bs-target="#removeLogModal" removeLog-data-id="{{ $review->id }}"
-                                    onclick="fillRemoveLogModalFields(this)">
-                                    Remove
-                                </button>
+                    @if ($review_counter < 3)
+                        @php
+                            @$review_counter++;
+                        @endphp
+                    @else
+                        @break;
+                    @endif
 
-                                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal"
-                                    data-id="{{ $review->id }}" data-text="{{ e($review->note) }}"
-                                    onclick="fillModalFields(this)">
-                                    Edit
-                                </button>
+                    <div class="card mb-4 border-0 shadow-sm">
+                        {{-- Log Remove / Edit --}}
+                        @if ($review->user_id == auth()->user()->id)
+                            <div class="card-header bg-light d-flex justify-content-end">
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-danger me-2" data-bs-toggle="modal"
+                                        data-bs-target="#removeLogModal" removeLog-data-id="{{ $review->id }}"
+                                        onclick="fillRemoveLogModalFields(this)">
+                                        <i class="bi bi-trash"></i> Remove
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal"
+                                        data-bs-target="#editModal" data-id="{{ $review->id }}"
+                                        data-text="{{ e($review->note) }}" onclick="fillModalFields(this)">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                </div>
                             </div>
                         @endif
 
-                        <div
-                            class="card-body d-flex justify-content-between align-items-start flex-column flex-md-row">
-                            <div class="me-3">
-                                {{-- Kullanıcı Adı  --}}
-                                <h6 class="mb-2">
-                                    <i class="bi bi-person-circle me-1"></i>
-                                    {{ $review->user->username ?? 'Bilinmeyen Kullanıcı' }}
-                                </h6>
+                        <div class="card-body">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-grow-1">
+                                    <!-- User Info -->
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="bi bi-person-circle fs-4 text-muted me-2"></i>
+                                        <h5 class="mb-0">{{ $review->user->username ?? 'Bilinmeyen Kullanıcı' }}
+                                        </h5>
+                                        <span class="text-muted ms-auto">
+                                            {{ \Carbon\Carbon::parse($review->updated_at)->format('d M Y, H:i') }}
+                                        </span>
+                                    </div>
 
-                                {{-- Yıldızlı Puanlama --}}
-                                <div class="mb-2">
-                                    @php
-                                        $stars = floor($review->rating);
-                                        $half = $review->rating - $stars >= 0.5 ? true : false;
-                                    @endphp
+                                    <!-- Rating -->
+                                    <div class="mb-3">
+                                        @php
+                                            $stars = floor($review->rating);
+                                            $half = $review->rating - $stars >= 0.5 ? true : false;
+                                        @endphp
 
-                                    @for ($i = 0; $i < $stars; $i++)
-                                        <i class="bi bi-star-fill text-warning"></i>
-                                    @endfor
+                                        @for ($i = 0; $i < $stars; $i++)
+                                            <i class="bi bi-star-fill text-warning fs-5"></i>
+                                        @endfor
 
-                                    @if ($half)
-                                        <i class="bi bi-star-half text-warning"></i>
-                                    @endif
-
-                                    @for ($i = $stars + ($half ? 1 : 0); $i < 5; $i++)
-                                        <i class="bi bi-star text-warning"></i>
-                                    @endfor
-
-                                    <span class="text-muted ms-2">({{ number_format($review->rating, 2) }})</span>
-                                </div>
-
-                                {{-- İnceleme Kısmı  --}}
-                                <div class="mb-2">
-                                    <p class="card-text lead">{{ $review->note }}</p>
-                                </div>
-
-                                {{-- Beğeni Sayısı  --}}
-                                <p class="mb-0">
-                                    @foreach ($logLikes as $like)
-                                        @if ($like->log_id == $review->id)
-                                            @php
-                                                $last_likedReview = $review->id;
-                                                $like_counter++;
-                                            @endphp
+                                        @if ($half)
+                                            <i class="bi bi-star-half text-warning fs-5"></i>
                                         @endif
-                                        @if ($last_likedReview !== $review->id)
-                                            @php
-                                                $like_counter = 0;
-                                            @endphp
-                                        @endif
-                                    @endforeach
-                                    @if ($like_counter > 0)
-                                        <i class="bi bi-heart-fill text-danger me-1">{{ $like_counter }} </i>
-                                    @else
-                                        <i class="bi bi-heart text-danger me-1">{{ $like_counter }} - No Likes Yet...
-                                        </i>
-                                    @endif
-                                </p>
-                                <br>
-                                {{-- Yorum Kısmı  --}}
-                                <div class="mb-2">
-                                    <h6 class="text-secondary">Comments</h6>
-                                    <hr>
-                                    <div class="rounded p-2 border mt-2">
-                                        @foreach ($comments as $comment)
-                                            @if ($review->id == $comment->parent_id)
-                                                @if ($comment_counter <= 1)
-                                                    <div class="border-bottom py-1">
 
-                                                        <strong>{{ $comment->user->username }}:</strong>
+                                        @for ($i = $stars + ($half ? 1 : 0); $i < 5; $i++)
+                                            <i class="bi bi-star text-warning fs-5"></i>
+                                        @endfor
 
-                                                        <span>{{ $comment->content }}</span>
-                                                        <div class="text-muted small">
-                                                            {{ $comment->created_at->diffForHumans() }}
-                                                        
-                                                        @if ($comment->user_id == auth()->user()->id)
-                                                            <div style="padding-bottom: 10px; display: flex">
-                                                                <button style="margin-right: 10px"
-                                                                    class="btn btn-secondary" data-bs-toggle="modal"
-                                                                    data-bs-target="#removeCommentModal"
-                                                                    removeComment-data-id="{{ $comment->id }}"
-                                                                    onclick="fillRemoveCommentModalFields(this)">
-                                                                    Remove
-                                                                </button>
+                                        <span
+                                            class="badge bg-light text-dark ms-2">{{ number_format($review->rating, 2) }}</span>
+                                    </div>
 
-                                                                <button class="btn btn-warning btn-sm"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#commentModal"
-                                                                    comment-data-id="{{ $comment->id }}"
-                                                                    comment-data-text="{{ e($comment->content) }}"
-                                                                    onclick="fillCommentModalFields(this)">
-                                                                    Edit
-                                                                </button>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                    
-                                                    </div>
-                                                    @php
-                                                        $comment_counter++;
-                                                    @endphp
-                                                @endif
+                                    <!-- Review Content -->
+                                    <div class="mb-3">
+                                        <p class="card-text">{{ $review->note }}</p>
+                                    </div>
+
+                                    <!-- Like Section -->
+                                    <div class="d-flex align-items-center mb-4">
+                                        <form action="{{ route('games.log.like') }}" method="POST" class="me-3">
+                                            @csrf
+                                            <input type="hidden" name="review_id" value="{{ $review->id }}">
+                                            <button type="submit"
+                                                class="btn btn-sm {{ auth()->user()->log_likes()->where('log_id', $review->id)->exists() ? 'btn-danger' : 'btn-outline-danger' }}">
+                                                <i class="bi bi-heart-fill"></i> Like
+                                            </button>
+                                        </form>
+
+                                        @foreach ($logLikes as $like)
+                                            @if ($like->log_id == $review->id)
+                                                @php
+                                                    $last_likedReview = $review->id;
+                                                    $like_counter++;
+                                                @endphp
+                                            @endif
+                                            @if ($last_likedReview !== $review->id)
+                                                @php
+                                                    $like_counter = 0;
+                                                @endphp
                                             @endif
                                         @endforeach
 
+                                        <span class="text-muted">
+                                            @if ($like_counter > 0)
+                                                {{ $like_counter }} {{ $like_counter == 1 ? 'like' : 'likes' }}
+                                            @else
+                                                No likes yet
+                                            @endif
+                                        </span>
                                     </div>
-                                </div>
 
-                                <form method="POST" action="{{ route('games.log.comments') }}">
-                                    @csrf
-                                    <input type="hidden" name="parent_id" value="{{ $review->id }}">
+                                    <!-- Comments Section -->
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-3"><i class="bi bi-chat-left-text me-2"></i>Comments
+                                        </h6>
+                                        <div class="bg-light rounded p-3">
+                                            @foreach ($comments as $comment)
+                                                @if ($review->id == $comment->parent_id)
+                                                    @if ($comment_counter <= 1)
+                                                        <div class="mb-3 pb-2 border-bottom">
+                                                            <div
+                                                                class="d-flex justify-content-between align-items-center mb-1">
+                                                                <strong
+                                                                    class="text-primary">{{ $comment->user->username }}</strong>
+                                                                <small
+                                                                    class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                                                            </div>
+                                                            <p class="mb-2">{{ $comment->content }}</p>
 
-                                    <input type="text" id="reply" name="reply" style="font-style: italic"
-                                        placeholder="Reply">
+                                                            @if ($comment->user_id == auth()->user()->id)
+                                                                <div class="btn-group btn-group-sm">
+                                                                    <button class="btn btn-outline-secondary btn-sm"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#removeCommentModal"
+                                                                        removeComment-data-id="{{ $comment->id }}"
+                                                                        onclick="fillRemoveCommentModalFields(this)">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-outline-warning btn-sm"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#commentModal"
+                                                                        comment-data-id="{{ $comment->id }}"
+                                                                        comment-data-text="{{ e($comment->content) }}"
+                                                                        onclick="fillCommentModalFields(this)">
+                                                                        <i class="bi bi-pencil"></i>
+                                                                    </button>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                        @php
+                                                            $comment_counter++;
+                                                        @endphp
+                                                    @endif
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
 
-                                    <button type="submit" class="btn btn-primary">Send</button>
-                                </form>
-
-                            </div>
-
-                            <div class="mt-3 mt-md-0" style="display: flex;">
-                                {{-- Tarih  --}}
-                                <div class="text-muted small mt-3 mt-md-0">
-                                    {{ \Carbon\Carbon::parse($review->updated_at)->format('d M Y, H:i') }}
-                                </div>
-
-
-                                <div style="padding-left: 10px">
-                                    <!-- Like Butonu -->
-                                    <form action="{{ route('games.log.like') }}" method="POST">
+                                    <!-- Reply Form -->
+                                    <form method="POST" action="{{ route('games.log.comments') }}" class="mt-3">
                                         @csrf
-                                        <input type="hidden" name="review_id" value="{{ $review->id }}">
-                                        <button type="submit"
-                                            class="btn                              
-{{ auth()->user()->log_likes()->where('log_id', $review->id)->exists() ? 'btn-danger' : 'btn-outline-danger' }}">
-
-                                            {{ auth()->user()->log_likes()->where('log_id', $review->id)->exists() ? '❤︎' : '❤️' }}
-                                        </button>
+                                        <input type="hidden" name="parent_id" value="{{ $review->id }}">
+                                        <div class="input-group">
+                                            <input type="text" id="reply" name="reply" class="form-control"
+                                                placeholder="Write a comment..." aria-label="Comment">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-send"></i> Send
+                                            </button>
+                                        </div>
                                     </form>
                                 </div>
-
-
                             </div>
                         </div>
 
-                        <a href="{{ route('games.comments', $review->id) }}" class="btn btn-light">See All
-                            Comments</a>
+                        <div class="card-footer bg-light">
+                            <a href="{{ route('games.comments', $review->id) }}"
+                                class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-chat-square-text"></i> View all comments
+                            </a>
                         </div>
+                    </div>
+                    <br>
+                    <hr>
+                    <br>
 
-                    @empty
-                        <p class="text-muted">There are no reviews yet...</p>
+                @empty
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> There are no reviews yet...
+                    </div>
                 @endforelse
             </div>
         </div>
@@ -645,6 +656,9 @@
 
 
 
+        <button class="back-to-top" title="Go to top">
+            <i class="bi bi-arrow-up"></i>
+        </button>
 
     </div>
 
@@ -689,4 +703,24 @@
 
         document.getElementById('removeComment_modalHiddenId').value = id;
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const backToTopButton = document.querySelector('.back-to-top');
+
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopButton.style.display = 'block';
+            } else {
+                backToTopButton.style.display = 'none';
+            }
+        });
+
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    });
 </script>
