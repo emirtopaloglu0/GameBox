@@ -89,10 +89,8 @@ class GameController extends Controller
 
     public function yearFilterGames(Request $request)
     {
-
         $page = $request->query('page', 1);
         $year = request()->get('years');
-
 
         $limit = 14;
         $offset = ($page - 1) * $limit;
