@@ -43,7 +43,10 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::get('/profile/played', [ProfileController::class, 'showPlayed'])->name('games.played.show');
+    Route::get('/profile/played', [ProfileController::class, 'ShowPlayed'])->name('profile.played.show');
+    Route::get('/profile/logs', [ProfileController::class, 'ShowLogs'])->name('profile.logs');
+    Route::get('/profile/likes', [ProfileController::class, 'ShowLikes'])->name('profile.likes');
+    Route::get('/profile/playLater', [ProfileController::class, 'ShowLaterList'])->name('profile.later');
 
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
