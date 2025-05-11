@@ -12,6 +12,8 @@ use Illuminate\Container\Attributes\Auth;
 use MarcReichel\IGDBLaravel\Models\Game;
 use MarcReichel\IGDBLaravel\Builder as IGDB;
 
+use App\Http\Controllers\ProfileController;
+
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
@@ -235,22 +237,6 @@ class GameController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show(string $id)
@@ -295,30 +281,28 @@ class GameController extends Controller
 
         $logLikes = LogLikes::with('likes.user')->get();
 
-        return view('games.show', compact('game', 'reviews', 'comments', 'logLikes'));
+        return view('games.show', compact('game', 'reviews', 'comments', 'logLikes', 'id'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+
+    public function AllLogs(string $id)
     {
-        //
+        $profileController = new ProfileController();
+        $reviews = $this->GetPaginationReviws($id);
+        $logLikes = $profileController->GetLogLikes();
+        $comments = $profileController->GetComments();
+        return view('games.allReviews', compact('reviews', 'logLikes', 'comments'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function GetPaginationReviws(string $id)
     {
-        //
-    }
+        $currentUserId = FacadesAuth::id();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $pagLogs = Log::with('user')->where('game_id', $id)
+            ->orderByRaw("user_id = ? DESC", [$currentUserId])
+
+            ->get();
+
+        return $pagLogs;
     }
 }

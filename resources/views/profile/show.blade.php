@@ -8,11 +8,37 @@
     @endphp
     <div class="container py-8">
         <br>
+        <div class="d-flex justify-content-evenly mb-4">
+            <div class="d-flex">
+                <i class="bi bi-person-circle me-6" style="font-size: 2rem;"></i>
+                <div>
+                    <p class="font-weight-bold text-uppercase">{{ $user->name }} {{ $user->surname }} </p>
+                    <p class="font-weight-light">{{ $user->username }} </p>
+                </div>
+                <a class="ml-10 btn btn-lg btn-secondary" href="{{ route('profile.edit', $user) }}">
+                    Edit Profile
+                </a>
+            </div>
+            <div>
+                <p>
+                    {{ count($playedGames) }}
+                </p>
+                <p class="text-muted">GAMES</p>
+            </div>
+            <div>
+                <p>{{ $thisYearLogged }}</p>
+                <p class="text-muted">THIS YEAR</p>
+            </div>
+        </div>
+        <br>
+        <hr>
+        <br>
+
         <div class="d-flex  justify-content-evenly mb-4">
             <a class="btn btn-outline-primary" href="{{ route('profile.played.show') }}">See All Played Games</a>
             <a class="btn btn-outline-primary" href="{{ route('profile.logs') }} ">See All Reviews</a>
-            <a class="btn btn-outline-primary" href="{{route('profile.likes')}}">See All Liked Games</a>
-            <a class="btn btn-outline-primary" href="{{route('profile.later')}}">Play Later List</a>
+            <a class="btn btn-outline-primary" href="{{ route('profile.likes') }}">See All Liked Games</a>
+            <a class="btn btn-outline-primary" href="{{ route('profile.later') }}">Play Later List</a>
         </div>
         <hr>
         <br>
@@ -289,7 +315,7 @@
                     <p class="text-muted">There are no reviews yet...</p>
         @endforelse
 
-        <div class="d-flex  justify-content-start mb-4">
+        <div class="d-flex  justify-content-start mb-4 mt-4">
             <h2 class="h3 text-muted">Most Liked Reviews</h2>
         </div>
 

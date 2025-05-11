@@ -182,7 +182,9 @@
         {{-- Logs / Comment kısmı --}}
         <div class="">
             <div class="">
-                <h2 class="card-title mb-4">📝 Reviews</h2>
+                <h2 class="card-title mb-4 h4">
+                <a href=" {{route('games.logs', $id)}} ">📝 Reviews - See All Reviews</a>    
+                </h2>
                 @forelse($reviews as $review)
                     @php
                         $last_review++;
@@ -202,7 +204,7 @@
                         @break;
                     @endif
 
-                    <div class="card mb-4 border-0 shadow-sm">
+                    <div class="card mb-4 border-0 shadow-lg">
                         {{-- Log Remove / Edit --}}
                         @if ($review->user_id == auth()->user()->id)
                             <div class="card-header bg-light d-flex justify-content-end">

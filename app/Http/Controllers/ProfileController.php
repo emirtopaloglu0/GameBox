@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Http;
 
+use Carbon\Carbon;
+
 
 class ProfileController extends Controller
 {
@@ -25,6 +27,7 @@ class ProfileController extends Controller
     {
         $games = [];
         $currentUserId = Auth::id();
+        $user = Auth::user();
 
         $playedGames = PlayedGame::with('user')
             ->where('user_id', $currentUserId)
@@ -60,9 +63,20 @@ class ProfileController extends Controller
         $logLikes = $this->GetLogLikes();
         $latestReviews = $this->GetLatestReviews();
         $mostLikedReviews = $this->GetMostLikedReviews();
+        $thisYearLogged = $this->GetThisYearLogged();
 
-        return view('profile.show', compact('games', 'playedGames', 'latestReviews', 'comments', 'logLikes', 'mostLikedReviews'));
+        return view('profile.show', compact('games', 'thisYearLogged', 'user', 'playedGames', 'latestReviews', 'comments', 'logLikes', 'mostLikedReviews'));
     }
+
+    public function GetThisYearLogged()
+    {
+        $userId = Auth::id();
+        $logged = Log::with('user')->where('user_id', $userId)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+        return $logged;
+    }
+
     public function ShowPlayed(Request $request)
     {
         $page = $request->input('page', 1);

@@ -22,6 +22,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/games/genre', [GameController::class, 'genreFilterGames'])->name('games.genreFilter');
     Route::get('/games/{id}', [GameController::class, 'show'])->name('games.show');
     Route::get('/comments/{id}', [CommentController::class, 'index'])->name('games.comments');
+    Route::get('/logs/{id}', [GameController::class, 'AllLogs'])->name('games.logs');
 
 
     Route::post('/games/like', [LikesController::class, 'toggleLike'])->name('games.like.toggle');
