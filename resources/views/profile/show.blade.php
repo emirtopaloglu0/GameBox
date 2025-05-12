@@ -141,7 +141,7 @@
 
                                 <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal"
                                     data-id="{{ (int) $review['review_id'] }}" data-text="{{ e($review['note']) }}"
-                                    onclick="fillModalFields(this)">
+                                    data-rating="{{ $review['rating'] }}" onclick="fillModalFields(this)">
                                     Edit
                                 </button>
                             </div>
@@ -346,7 +346,7 @@
 
                                 <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal"
                                     data-id="{{ (int) $review['review_id'] }}" data-text="{{ e($review['note']) }}"
-                                    onclick="fillModalFields(this)">
+                                    data-rating="{{ $review['rating'] }}" onclick="fillModalFields(this)">
                                     Edit
                                 </button>
                             </div>
@@ -542,6 +542,21 @@
                     <form action="{{ route('games.log.edit') }}" method="POST">
                         @csrf
                         <input type="hidden" name="id" id="modalHiddenId">
+                        <!-- Rating -->
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating</label>
+                            <br>
+                            <div class="stars" data-rating="{{ $game->rating ?? 0 }}">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <div class="star" data-value="{{ $i }}">
+                                        ★
+                                    </div>
+                                @endfor
+                            </div>
+                            <input type="hidden" name="rating" id="ratingInput"
+                                value="{{ old('rating', $game->rating ?? 0) }}">
+                        </div>
+
                         <!-- Notes -->
                         <div class="mb-3">
                             <label for="notes" class="form-label">Review</label>
@@ -555,6 +570,7 @@
             </div>
         </div>
     </div>
+
 
     {{-- Remove Log Modal --}}
     <div class="modal fade" id="removeLogModal" tabindex="-1" aria-labelledby="removeLogModalLabel"
@@ -579,6 +595,67 @@
             </div>
         </div>
     </div>
+
+    <!-- Comment Modal -->
+    <div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="commentModalLabel">Editing...</h5>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                        aria-label="Close">Close</button>
+                </div>
+
+                <!-- Modal Body (Form) -->
+                <div class="modal-body">
+                    <form action="{{ route('games.comment.edit') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="id" id="comment_modalHiddenId">
+                        <!-- Notes -->
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Comment</label>
+                            <textarea placeholder="Edit review..." class="form-control" id="comment_modalTextarea" name="content"
+                                rows="3"></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Remove Comment Modal --}}
+    <div class="modal fade" id="removeCommentModal" tabindex="-1" aria-labelledby="removeCommentModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeCommentModalLabel">Are you sure?</h5>
+                    <button type="button" class="btn btn-gray" data-bs-dismiss="modal"
+                        aria-label="Close">Close</button>
+                </div>
+
+                <!-- Modal Body (Form) -->
+                <div class="modal-body">
+                    <form action="{{ route('games.comment.remove') }}" method="POST">
+
+                        @csrf
+                        <input type="hidden" name="id" id="removeComment_modalHiddenId">
+                        <button class="btn btn-danger btn-sm">
+                            Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
     <button class="back-to-top" title="Go to top">
         <i class="bi bi-arrow-up"></i>
     </button>
@@ -587,12 +664,45 @@
 
 
 <script>
+    // Kullanıcı yeni bir yıldız seçerse input'u güncelle
+    document.addEventListener('DOMContentLoaded', () => {
+        const stars = document.querySelectorAll('#editModal .star');
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const value = parseInt(star.getAttribute('data-value'));
+                document.getElementById('ratingInput').value = value;
+
+                // Seçimi güncelle
+                stars.forEach(s => {
+                    if (parseInt(s.getAttribute('data-value')) <= value) {
+                        s.classList.add('selected');
+                    } else {
+                        s.classList.remove('selected');
+                    }
+                });
+            });
+        });
+    });
+
+
     function fillModalFields(button) {
         var text = button.getAttribute('data-text');
         var id = button.getAttribute('data-id');
+        var rating = button.getAttribute('data-rating');
+        // Yıldızları işaretle
+        const stars = document.querySelectorAll('#editModal .star');
+        stars.forEach(star => {
+            const value = parseInt(star.getAttribute('data-value'));
+            if (value <= rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
 
         document.getElementById('modalTextarea').value = text;
         document.getElementById('modalHiddenId').value = id;
+        document.getElementById('modalRating').value = rating;
     }
 
     function fillCommentModalFields(button) {

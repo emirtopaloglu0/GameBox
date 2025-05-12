@@ -289,7 +289,8 @@
                                     </button>
                                     <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal"
                                         data-bs-target="#editModal" data-id="{{ $review->id }}"
-                                        data-text="{{ e($review->note) }}" onclick="fillModalFields(this)">
+                                        data-text="{{ e($review->note) }}" data-rating = "{{ $review->rating }}"
+                                        onclick="fillModalFields(this)">
                                         <i class="bi bi-pencil"></i> Edit
                                     </button>
                                 </div>
@@ -598,6 +599,21 @@
                         <form action="{{ route('games.log.edit') }}" method="POST">
                             @csrf
                             <input type="hidden" name="id" id="modalHiddenId">
+                            {{-- <!-- Rating -->
+                            <div class="mb-3">
+                                <label for="rating" class="form-label">Rating</label>
+                                <br>
+                                <div class="stars" data-rating="{{ $game->rating ?? 0 }}">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <div class="star" data-value="{{ $i }}">
+                                            ★
+                                        </div>
+                                    @endfor
+                                </div>
+                                <input type="hidden" name="rating" id="ratingInput"
+                                    value="{{ old('rating', $game->rating ?? 0) }}">
+                            </div> --}}
+
                             <!-- Notes -->
                             <div class="mb-3">
                                 <label for="notes" class="form-label">Review</label>
@@ -716,14 +732,46 @@
     }
 </style>
 
-<script defer src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"
-    integrity="sha384-rOA1PnstxnOBLzCLMcre8ybwbTmemjzdNlILg8O7z1lUkLXozs4DHonlDtnE7fpc" crossorigin="anonymous">
+<script>
+    // Kullanıcı yeni bir yıldız seçerse input'u güncelle
+    document.addEventListener('DOMContentLoaded', () => {
+        const stars = document.querySelectorAll('#editModal .star');
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const value = parseInt(star.getAttribute('data-value'));
+                document.getElementById('ratingInput').value = value;
+
+                // Seçimi güncelle
+                stars.forEach(s => {
+                    if (parseInt(s.getAttribute('data-value')) <= value) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+    });
+
+
     function fillModalFields(button) {
         var text = button.getAttribute('data-text');
         var id = button.getAttribute('data-id');
+        var rating = button.getAttribute('data-rating');
+        // Yıldızları işaretle
+        const stars = document.querySelectorAll('#editModal .star');
+        stars.forEach(star => {
+            const value = parseInt(star.getAttribute('data-value'));
+            if (value <= rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
 
         document.getElementById('modalTextarea').value = text;
         document.getElementById('modalHiddenId').value = id;
+        document.getElementById('modalRating').value = rating;
     }
 
     function fillCommentModalFields(button) {

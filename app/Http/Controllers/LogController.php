@@ -78,9 +78,11 @@ class LogController extends Controller
     }
     public function editLog(Request $request)
     {
+        
         $request->validate([
             'id' => 'required',
-            'notes' => 'required'
+            'rating' => 'required|numeric|min:0|max:5',
+            'notes' => 'required',
         ]);
 
         $log = Log::where(
@@ -88,7 +90,10 @@ class LogController extends Controller
                 'user_id' => FacadesAuth::id(),
                 'id' => $request->id
             ]
-        )->update(['note' => $request->notes]);
+        )->update([
+            'note' => $request->notes,
+            'rating' => $request->rating
+        ]);
 
         if ($log)
             $message = 'Review Updated!';
