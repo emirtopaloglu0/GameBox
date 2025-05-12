@@ -6,19 +6,37 @@
             });
         </script>
     @endif
-
     @php
         $last_review = 0;
         $comment_counter = 0;
         $like_counter = 0;
         $last_likedReview = 0;
         $review_counter = 1;
+
+        $ratingImages = [
+            // PEGI
+            1 => 'https://pegi.info/sites/default/files/inline-images/age-3-black_0.jpg', //3+
+            2 => 'https://pegi.info/sites/default/files/inline-images/age-7-black.jpg', //7+
+            3 => 'https://pegi.info/sites/default/files/inline-images/age-12-black.jpg', //12+
+            4 => 'https://pegi.info/sites/default/files/inline-images/age-16-black.jpg', //16+
+            5 => 'https://pegi.info/sites/default/files/inline-images/age-18-black%202_0.jpg', //18+
+            // ESRB
+            6 => 'https://assets.xboxservices.com/assets/00/06/000687de-755f-4013-85b3-80ffc2aac6a4.svg?n=ESRB-Rating-Pending_500x500.svg', // RP
+            7 => 'https://assets.xboxservices.com/assets/90/0c/900c2983-dcde-414f-9725-e894d4aa3b63.svg?n=ESRB-E_500x500.svg', // EC
+            8 => 'https://assets.xboxservices.com/assets/90/0c/900c2983-dcde-414f-9725-e894d4aa3b63.svg?n=ESRB-E_500x500.svg', // E
+            9 => 'https://assets.xboxservices.com/assets/dd/00/dd00d53a-23be-40cc-9109-d384ee5d4082.svg?n=ESRB-E-10%252b_500x500.svg', // E10+
+            10 => 'https://assets.xboxservices.com/assets/89/ac/89ac0825-1221-4107-96f2-77ef19b06e6b.svg?n=ESRB-T_500x500.svg', // T
+            11 => 'https://assets.xboxservices.com/assets/bd/66/bd668d08-3b14-4ffd-b623-b7af9e21f8f7.svg?n=ESRB-Mature_500x500.svg', // M
+            12 => 'https://assets.xboxservices.com/assets/c1/d3/c1d3ced6-b303-4ce7-81ca-6709f0a83ee6.svg?n=ESRB-A_500x500.svg', // AO
+        ];
+
     @endphp
 
     <div class="container py-8">
 
         <!-- Game Header -->
         <div class="row mb-5">
+            {{-- Cover PHoto --}}
             <div class="col-md-4">
                 @if (isset($game['cover']['url']))
                     @php
@@ -29,6 +47,7 @@
                 @endif
             </div>
 
+            {{-- Orta Kısım --}}
             <div class="col-md-6">
                 <h1 class="display-4 fw-bold mb-3">{{ $game['name'] ?? 'Untitled Game' }}</h1>
 
@@ -70,8 +89,28 @@
                         </div>
                     </div>
                 @endisset
+
+                <!-- Age Ratings -->
+                @isset($game['age_ratings'])
+                    <div class="mb-4">
+                        <h5 class="mb-3">Age Ratings</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach ($game['age_ratings'] as $rating)
+                                @if (in_array($rating['category'], [1, 2]) && isset($ratingImages[$rating['rating']]))
+                                    <div class="p-2">
+                                        <img src="{{ $ratingImages[$rating['rating']] }}" alt="Rating"
+                                            class="w-auto h-12">
+                                    </div>
+                                @endif
+                            @endforeach
+
+                        </div>
+
+                    </div>
+                @endisset
             </div>
 
+            {{-- Play, Log, Later, Like Buttons --}}
             <div class="col-md-2">
                 <div class="d-flex flex-column gap-3">
                     <!-- Played Butonu, Loglamadan oynadımı işaretleyecek sadece -->
@@ -179,11 +218,45 @@
             </div>
         @endisset
 
+        <!-- Rating System -->
+        <div class="card border-0 shadow-sm mb-5">
+            <div class="card-body">
+                <h3 class="card-title mb-4">📊 Ratings</h3>
+                <div class="row">
+                    <!-- User Rating -->
+                    <div class="col-md-6 mb-4">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <span class="fs-5">👥 User Score</span>
+                            @isset($game['total_rating'])
+                                <div class="progress w-50">
+                                    <div class="progress-bar bg-primary" role="progressbar"
+                                        style="width: {{ $game['total_rating'] }}%"
+                                        aria-valuenow="{{ $game['total_rating'] }}" aria-valuemin="0"
+                                        aria-valuemax="100">
+                                        {{ round($game['total_rating'], 1) }}%
+                                    </div>
+                                </div>
+                            @else
+                                <span class="text-muted">Not rated yet</span>
+                            @endisset
+                        </div>
+                        <small class="text-muted">
+                            Based on {{ $game['total_rating_count'] ?? 0 }} ratings
+                        </small>
+                        <br>
+                        <small class="text-muted api-info">
+                            * These ratings are based on IGDB Api.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- Logs / Comment kısmı --}}
         <div class="">
             <div class="">
                 <h2 class="card-title mb-4 h4">
-                <a href=" {{route('games.logs', $id)}} ">📝 Reviews - See All Reviews</a>    
+                    <a href=" {{ route('games.logs', $id) }} ">📝 Reviews - See All Reviews</a>
                 </h2>
                 @forelse($reviews as $review)
                     @php
@@ -380,7 +453,7 @@
             </div>
         </div>
 
-        <!-- 1. Artworks Gallery -->
+        <!-- Artworks -->
         @isset($game['artworks'])
             <div class="card border-0 shadow-sm mb-5">
                 <div class="card-body">
@@ -397,7 +470,7 @@
             </div>
         @endisset
 
-        <!-- 2. DLCs & Expansions -->
+        <!-- DLCs & Expansions -->
         @isset($game['dlcs'])
             <div class="card border-0 shadow-sm mb-5">
                 <div class="card-body">
@@ -421,27 +494,8 @@
             </div>
         @endisset
 
-        <!-- 3. Age Ratings -->
-        @isset($game['age_ratings'])
-            <div class="card border-0 shadow-sm mb-5">
-                <div class="card-body">
-                    <h3 class="card-title mb-4">🔞 Age Ratings</h3>
-                    <div class="d-flex flex-wrap gap-3">
-                        @foreach ($game['age_ratings'] as $rating)
-                            <div class="badge bg-dark p-2">
-                                {{ match ($rating['category']) {
-                                    1 => 'ESRB: ' . $rating['rating'],
-                                    2 => 'PEGI: ' . $rating['rating'],
-                                    default => 'Age Rating: ' . $rating['rating'],
-                                } }}
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        @endisset
 
-        <!-- 4. Franchise & Series -->
+        <!-- Franchise & Series -->
         @isset($game['franchise'])
             <div class="card border-0 shadow-sm mb-5">
                 <div class="card-body">
@@ -454,42 +508,12 @@
             </div>
         @endisset
 
-        <!-- 5. Advanced Rating System -->
-        <div class="card border-0 shadow-sm mb-5">
-            <div class="card-body">
-                <h3 class="card-title mb-4">📊 Ratings</h3>
-                <div class="row">
-                    <!-- User Rating -->
-                    <div class="col-md-6 mb-4">
-                        <div class="d-flex align-items-center gap-3 mb-2">
-                            <span class="fs-5">👥 User Score</span>
-                            @isset($game['total_rating'])
-                                <div class="progress w-50">
-                                    <div class="progress-bar bg-primary" role="progressbar"
-                                        style="width: {{ $game['total_rating'] }}%"
-                                        aria-valuenow="{{ $game['total_rating'] }}" aria-valuemin="0"
-                                        aria-valuemax="100">
-                                        {{ round($game['total_rating'], 1) }}%
-                                    </div>
-                                </div>
-                            @else
-                                <span class="text-muted">Not rated yet</span>
-                            @endisset
-                        </div>
-                        <small class="text-muted">
-                            Based on {{ $game['total_rating_count'] ?? 0 }} ratings
-                        </small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 6. Videos Section -->
+        <!-- Videos Section -->
         @isset($game['videos'])
             <div class="card border-0 shadow-sm mb-5">
                 <div class="card-body">
                     <h3 class="card-title mb-4">🎥 Trailers & Videos</h3>
-                    <div class="row row-cols-1 row-cols-lg-2 g-4">
+                    <div class="row row-cols-1 row-cols-lg-4 g-4">
                         @foreach ($game['videos'] as $video)
                             <div class="col">
                                 <div class="ratio ratio-16x9">
@@ -502,46 +526,61 @@
                 </div>
             </div>
         @endisset
-
-        <!-- 7. Websites & Links -->
+        <!-- Websites & Links -->
         @isset($game['websites'])
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <h3 class="card-title mb-4">🌐 Official Links</h3>
-                    <div class="d-flex flex-wrap gap-3">
+                    <div class="rounded-social-buttons d-flex flex-wrap gap-3">
+
                         @foreach ($game['websites'] as $website)
-                            <a href="{{ $website['url'] }}" class="btn btn-outline-dark" target="_blank">
-                                @switch($website['category'])
-                                    @case(1)
-                                        🌐 Official Site
-                                    @break
+                            @switch($website['category'])
+                                @case(1)
+                                    <a href="{{ $website['url'] }}" class="social-button facebook" target="_blank">
+                                        <i class="fa-solid fa-globe"></i> </a>
+                                @break
 
-                                    @case(2)
-                                        📱 Twitter
-                                    @break
+                                @case(2)
+                                    {{-- X --}}
+                                    {{-- <img src="{{ asset('images/twitter.png') }}" alt="Twitter" class="w-auto h-14"> --}}
+                                    <a href="{{ $website['url'] }}" class="social-button tiktok" target="_blank">
+                                        <i class="fa-brands fa-x-twitter"></i> </a>
+                                @break
 
-                                    @case(3)
-                                        📘 Facebook
-                                    @break
+                                @case(3)
+                                    {{-- Wikipedia --}}
+                                    {{-- <img src="{{ asset('images/wiki.png') }}" alt="Wikipedia" class="w-auto h-14"> --}}
+                                    <a href="{{ $website['url'] }}" class="social-button linkedin" target="_blank">
+                                        <i class="fa-brands fa-wikipedia-w"></i>
+                                    </a>
+                                @break
 
-                                    @default
-                                        🔗 Other
-                                @endswitch
-                            </a>
+                                @case(9)
+                                    <a href="{{ $website['url'] }}" class="social-button youtube" target="_blank">
+                                        <i class="fa-brands fa-youtube"></i> </a>
+                                @break
+
+                                @case(13)
+                                    <a href="{{ $website['url'] }}" class="social-button steam" target="_blank">
+                                        <i class="fa-brands fa-steam-symbol"></i> </a>
+                                @break
+
+                                @case(8)
+                                    <a href="{{ $website['url'] }}" class="social-button instagram" target="_blank">
+                                        <i class="fa-brands fa-instagram"></i> </a>
+                                @break
+                            @endswitch
                         @endforeach
                     </div>
                 </div>
             </div>
         @endisset
         <hr>
-
+        <br>
         <!-- Back Button -->
         <a href="{{ route('games.index') }}" class="btn btn-outline-primary">
             ← Back to All Games
         </a>
-
-
-
 
         <!-- Review Modal -->
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -677,7 +716,8 @@
     }
 </style>
 
-<script>
+<script defer src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"
+    integrity="sha384-rOA1PnstxnOBLzCLMcre8ybwbTmemjzdNlILg8O7z1lUkLXozs4DHonlDtnE7fpc" crossorigin="anonymous">
     function fillModalFields(button) {
         var text = button.getAttribute('data-text');
         var id = button.getAttribute('data-id');

@@ -49,7 +49,6 @@
 
         <div class="d-lg-flex justify-content-center row row-cols-1 row-cols-md-3 row-cols-lg-5 g-4" style="gap: 15px;">
             @foreach ($games as $game)
-
                 @if ($counter < 5)
                     <div class="game-card-profile">
                         {{-- <h2 style="font-size: larger">{{ $game['name'] }}</h2> --}}

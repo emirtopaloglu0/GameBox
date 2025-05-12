@@ -98,7 +98,9 @@
         <br>
 
         <footer>
-            <p>* This votes are general ratings</p>
+            <small class="text-muted api-info">
+                * These ratings are based on IGDB Api.
+            </small>
         </footer>
     </div>
 </x-app-layout>
