@@ -6,18 +6,37 @@
             });
         </script>
     @endif
-
     @php
         $last_review = 0;
         $comment_counter = 0;
         $like_counter = 0;
         $last_likedReview = 0;
+        $review_counter = 1;
+
+        $ratingImages = [
+            // PEGI
+            1 => 'https://pegi.info/sites/default/files/inline-images/age-3-black_0.jpg', //3+
+            2 => 'https://pegi.info/sites/default/files/inline-images/age-7-black.jpg', //7+
+            3 => 'https://pegi.info/sites/default/files/inline-images/age-12-black.jpg', //12+
+            4 => 'https://pegi.info/sites/default/files/inline-images/age-16-black.jpg', //16+
+            5 => 'https://pegi.info/sites/default/files/inline-images/age-18-black%202_0.jpg', //18+
+            // ESRB
+            6 => 'https://assets.xboxservices.com/assets/00/06/000687de-755f-4013-85b3-80ffc2aac6a4.svg?n=ESRB-Rating-Pending_500x500.svg', // RP
+            7 => 'https://assets.xboxservices.com/assets/90/0c/900c2983-dcde-414f-9725-e894d4aa3b63.svg?n=ESRB-E_500x500.svg', // EC
+            8 => 'https://assets.xboxservices.com/assets/90/0c/900c2983-dcde-414f-9725-e894d4aa3b63.svg?n=ESRB-E_500x500.svg', // E
+            9 => 'https://assets.xboxservices.com/assets/dd/00/dd00d53a-23be-40cc-9109-d384ee5d4082.svg?n=ESRB-E-10%252b_500x500.svg', // E10+
+            10 => 'https://assets.xboxservices.com/assets/89/ac/89ac0825-1221-4107-96f2-77ef19b06e6b.svg?n=ESRB-T_500x500.svg', // T
+            11 => 'https://assets.xboxservices.com/assets/bd/66/bd668d08-3b14-4ffd-b623-b7af9e21f8f7.svg?n=ESRB-Mature_500x500.svg', // M
+            12 => 'https://assets.xboxservices.com/assets/c1/d3/c1d3ced6-b303-4ce7-81ca-6709f0a83ee6.svg?n=ESRB-A_500x500.svg', // AO
+        ];
+
     @endphp
 
     <div class="container py-8">
 
         <!-- Game Header -->
         <div class="row mb-5">
+            {{-- Cover PHoto --}}
             <div class="col-md-4">
                 @if (isset($game['cover']['url']))
                     @php
@@ -28,6 +47,7 @@
                 @endif
             </div>
 
+            {{-- Orta Kısım --}}
             <div class="col-md-6">
                 <h1 class="display-4 fw-bold mb-3">{{ $game['name'] ?? 'Untitled Game' }}</h1>
 
@@ -69,8 +89,28 @@
                         </div>
                     </div>
                 @endisset
+
+                <!-- Age Ratings -->
+                @isset($game['age_ratings'])
+                    <div class="mb-4">
+                        <h5 class="mb-3">Age Ratings</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach ($game['age_ratings'] as $rating)
+                                @if (in_array($rating['category'], [1, 2]) && isset($ratingImages[$rating['rating']]))
+                                    <div class="p-2">
+                                        <img src="{{ $ratingImages[$rating['rating']] }}" alt="Rating"
+                                            class="w-auto h-12">
+                                    </div>
+                                @endif
+                            @endforeach
+
+                        </div>
+
+                    </div>
+                @endisset
             </div>
 
+            {{-- Play, Log, Later, Like Buttons --}}
             <div class="col-md-2">
                 <div class="d-flex flex-column gap-3">
                     <!-- Played Butonu, Loglamadan oynadımı işaretleyecek sadece -->
@@ -178,264 +218,7 @@
             </div>
         @endisset
 
-        {{-- Logs / Comment kısmı --}}
-
-
-        <div class="card border-0 shadow-sm mb-5">
-            <div class="card-body">
-                <h2 class="card-title mb-4">📝 Reviews</h2>
-                @forelse($reviews as $review)
-                    @php
-                        $last_review++;
-                    @endphp
-                    @if ($last_review > 1)
-                        @php
-                            $comment_counter = 0;
-                            $last_review = 0;
-                        @endphp
-                    @endif
-
-                    <div class="card mb-3 shadow-sm">
-                        @if ($review->user_id == auth()->user()->id)
-                            <div style="padding: 10px; display: flex">
-                                <button style="margin-right: 10px" class="btn btn-dark" data-bs-toggle="modal"
-                                    data-bs-target="#removeLogModal" removeLog-data-id="{{ $review->id }}"
-                                    onclick="fillRemoveLogModalFields(this)">
-                                    Remove
-                                </button>
-
-                                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal"
-                                    data-id="{{ $review->id }}" data-text="{{ e($review->note) }}"
-                                    onclick="fillModalFields(this)">
-                                    Edit
-                                </button>
-                            </div>
-                        @endif
-
-                        <div
-                            class="card-body d-flex justify-content-between align-items-start flex-column flex-md-row">
-                            <div class="me-3">
-                                {{-- Kullanıcı Adı  --}}
-                                <h6 class="mb-2">
-                                    <i class="bi bi-person-circle me-1"></i>
-                                    {{ $review->user->username ?? 'Bilinmeyen Kullanıcı' }}
-                                </h6>
-
-                                {{-- Yıldızlı Puanlama --}}
-                                <div class="mb-2">
-                                    @php
-                                        $stars = floor($review->rating);
-                                        $half = $review->rating - $stars >= 0.5 ? true : false;
-                                    @endphp
-
-                                    @for ($i = 0; $i < $stars; $i++)
-                                        <i class="bi bi-star-fill text-warning"></i>
-                                    @endfor
-
-                                    @if ($half)
-                                        <i class="bi bi-star-half text-warning"></i>
-                                    @endif
-
-                                    @for ($i = $stars + ($half ? 1 : 0); $i < 5; $i++)
-                                        <i class="bi bi-star text-warning"></i>
-                                    @endfor
-
-                                    <span class="text-muted ms-2">({{ number_format($review->rating, 2) }})</span>
-                                </div>
-
-                                {{-- İnceleme Kısmı  --}}
-                                <div class="mb-2">
-                                    <p class="card-text lead">{{ $review->note }}</p>
-                                </div>
-
-                                {{-- Beğeni Sayısı  --}}
-                                <p class="mb-0">
-                                    @foreach ($logLikes as $like)
-                                        @if ($like->log_id == $review->id)
-                                            @php
-                                                $last_likedReview = $review->id;
-                                                $like_counter++;
-                                            @endphp
-                                        @endif
-                                        @if ($last_likedReview !== $review->id)
-                                            @php
-                                                $like_counter = 0;
-                                            @endphp
-                                        @endif
-                                    @endforeach
-                                    @if ($like_counter > 0)
-                                        <i class="bi bi-heart-fill text-danger me-1">{{ $like_counter }} </i>
-                                    @else
-                                        <i class="bi bi-heart text-danger me-1">{{ $like_counter }} - No Likes Yet...
-                                        </i>
-                                    @endif
-                                </p>
-
-                                {{-- Yorum Kısmı  --}}
-                                <div class="mb-2">
-                                    <div class="rounded p-2 border mt-2">
-                                        <h6 class="text-secondary">Comments</h6>
-                                        @foreach ($comments as $comment)
-                                            @if ($review->id == $comment->parent_id)
-                                                @if ($comment_counter <= 1)
-                                                    <div class="border-bottom py-1">
-
-                                                        <strong>{{ $comment->user->username }}:</strong>
-
-                                                        <span>{{ $comment->content }}</span>
-                                                        <div class="text-muted small">
-                                                            {{ $comment->created_at->diffForHumans() }}</div>
-                                                        @if ($comment->user_id == auth()->user()->id)
-                                                            <div style="padding: 10px; display: flex">
-
-                                                                <button style="margin-right: 10px"
-                                                                    class="btn btn-secondary" data-bs-toggle="modal"
-                                                                    data-bs-target="#removeCommentModal"
-                                                                    removeComment-data-id="{{ $comment->id }}"
-                                                                    onclick="fillRemoveCommentModalFields(this)">
-                                                                    Remove
-                                                                </button>
-
-                                                                <button class="btn btn-warning btn-sm"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#commentModal"
-                                                                    comment-data-id="{{ $comment->id }}"
-                                                                    comment-data-text="{{ e($comment->content) }}"
-                                                                    onclick="fillCommentModalFields(this)">
-                                                                    Edit
-                                                                </button>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                    @php
-                                                        $comment_counter++;
-                                                    @endphp
-                                                @endif
-                                            @endif
-                                        @endforeach
-
-                                    </div>
-                                </div>
-
-                                <form method="POST" action="{{ route('games.log.comments') }}">
-                                    @csrf
-                                    <input type="hidden" name="parent_id" value="{{ $review->id }}">
-
-                                    <input type="text" id="reply" name="reply" style="font-style: italic"
-                                        placeholder="Reply">
-
-                                    <button type="submit" class="btn btn-primary">Send</button>
-                                </form>
-
-                            </div>
-
-                            <div class="mt-3 mt-md-0" style="display: flex;">
-                                {{-- Tarih  --}}
-                                <div class="text-muted small mt-3 mt-md-0">
-                                    {{ \Carbon\Carbon::parse($review->updated_at)->format('d M Y, H:i') }}
-                                </div>
-
-
-                                <div style="padding-left: 10px">
-                                    <!-- Like Butonu -->
-                                    <form action="{{ route('games.log.like') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="review_id" value="{{ $review->id }}">
-                                        <button type="submit"
-                                            class="btn                              
-{{ auth()->user()->log_likes()->where('log_id', $review->id)->exists() ? 'btn-danger' : 'btn-outline-danger' }}">
-
-                                            {{ auth()->user()->log_likes()->where('log_id', $review->id)->exists() ? '❤︎' : '❤️' }}
-                                        </button>
-                                    </form>
-                                </div>
-
-
-                            </div>
-                        </div>
-                        <a href="" class="btn btn-light">See All Comments</a>
-
-                    @empty
-                        <p class="text-muted">There are no reviews yet...</p>
-                @endforelse
-            </div>
-        </div>
-
-        <!-- 1. Artworks Gallery -->
-        @isset($game['artworks'])
-            <div class="card border-0 shadow-sm mb-5">
-                <div class="card-body">
-                    <h3 class="card-title mb-4">🎨 Artworks</h3>
-                    <div class="row row-cols-2 row-cols-md-4 g-4">
-                        @foreach ($game['artworks'] as $artwork)
-                            <div class="col">
-                                <img src="https:{{ str_replace('t_thumb', 't_1080p', $artwork['url']) }}"
-                                    class="img-fluid rounded-3 hover-zoom" alt="Game artwork">
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        @endisset
-
-        <!-- 2. DLCs & Expansions -->
-        @isset($game['dlcs'])
-            <div class="card border-0 shadow-sm mb-5">
-                <div class="card-body">
-                    <h3 class="card-title mb-4">🕹️ DLCs & Expansions</h3>
-                    <div class="row row-cols-1 row-cols-md-3 g-4">
-                        @foreach ($game['dlcs'] as $dlc)
-                            <div class="col">
-                                <div class="game-card-small">
-                                    @if (isset($dlc['cover']['url']))
-                                        <img src="https:{{ str_replace('t_thumb', 't_cover_big', $dlc['cover']['url']) }}"
-                                            class="img-fluid rounded-top" alt="{{ $dlc['name'] }}">
-                                    @endif
-                                    <div class="p-2">
-                                        <h6>{{ $dlc['name'] }}</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        @endisset
-
-        <!-- 3. Age Ratings -->
-        @isset($game['age_ratings'])
-            <div class="card border-0 shadow-sm mb-5">
-                <div class="card-body">
-                    <h3 class="card-title mb-4">🔞 Age Ratings</h3>
-                    <div class="d-flex flex-wrap gap-3">
-                        @foreach ($game['age_ratings'] as $rating)
-                            <div class="badge bg-dark p-2">
-                                {{ match ($rating['category']) {
-                                    1 => 'ESRB: ' . $rating['rating'],
-                                    2 => 'PEGI: ' . $rating['rating'],
-                                    default => 'Age Rating: ' . $rating['rating'],
-                                } }}
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        @endisset
-
-        <!-- 4. Franchise & Series -->
-        @isset($game['franchise'])
-            <div class="card border-0 shadow-sm mb-5">
-                <div class="card-body">
-                    <h3 class="card-title mb-4">📚 Franchise</h3>
-                    <div class="d-flex align-items-center gap-3">
-                        <i class="bi bi-collection-play fs-2"></i>
-                        <h4>{{ $game['franchise']['name'] }}</h4>
-                    </div>
-                </div>
-            </div>
-        @endisset
-
-        <!-- 5. Advanced Rating System -->
+        <!-- Rating System -->
         <div class="card border-0 shadow-sm mb-5">
             <div class="card-body">
                 <h3 class="card-title mb-4">📊 Ratings</h3>
@@ -460,17 +243,278 @@
                         <small class="text-muted">
                             Based on {{ $game['total_rating_count'] ?? 0 }} ratings
                         </small>
+                        <br>
+                        <small class="text-muted api-info">
+                            * These ratings are based on IGDB Api.
+                        </small>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 6. Videos Section -->
+        {{-- Logs / Comment kısmı --}}
+        <div class="">
+            <div class="">
+                <h2 class="card-title mb-4 h4">
+                    <a href=" {{ route('games.logs', $id) }} ">📝 Reviews - See All Reviews</a>
+                </h2>
+                @forelse($reviews as $review)
+                    @php
+                        $last_review++;
+                    @endphp
+                    @if ($last_review > 1)
+                        @php
+                            $comment_counter = 0;
+                            $last_review = 0;
+                        @endphp
+                    @endif
+
+                    @if ($review_counter < 3)
+                        @php
+                            @$review_counter++;
+                        @endphp
+                    @else
+                        @break;
+                    @endif
+
+                    <div class="card mb-4 border-0 shadow-lg">
+                        {{-- Log Remove / Edit --}}
+                        @if ($review->user_id == auth()->user()->id)
+                            <div class="card-header bg-light d-flex justify-content-end">
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-danger me-2" data-bs-toggle="modal"
+                                        data-bs-target="#removeLogModal" removeLog-data-id="{{ $review->id }}"
+                                        onclick="fillRemoveLogModalFields(this)">
+                                        <i class="bi bi-trash"></i> Remove
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal"
+                                        data-bs-target="#editModal" data-id="{{ $review->id }}"
+                                        data-text="{{ e($review->note) }}" data-rating = "{{ $review->rating }}"
+                                        onclick="fillModalFields(this)">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="card-body">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-grow-1">
+                                    <!-- User Info -->
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="bi bi-person-circle fs-4 text-muted me-2"></i>
+                                        <h5 class="mb-0">{{ $review->user->username ?? 'Bilinmeyen Kullanıcı' }}
+                                        </h5>
+                                        <span class="text-muted ms-auto">
+                                            {{ \Carbon\Carbon::parse($review->updated_at)->format('d M Y, H:i') }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Rating -->
+                                    <div class="mb-3">
+                                        @php
+                                            $stars = floor($review->rating);
+                                            $half = $review->rating - $stars >= 0.5 ? true : false;
+                                        @endphp
+
+                                        @for ($i = 0; $i < $stars; $i++)
+                                            <i class="bi bi-star-fill text-warning fs-5"></i>
+                                        @endfor
+
+                                        @if ($half)
+                                            <i class="bi bi-star-half text-warning fs-5"></i>
+                                        @endif
+
+                                        @for ($i = $stars + ($half ? 1 : 0); $i < 5; $i++)
+                                            <i class="bi bi-star text-warning fs-5"></i>
+                                        @endfor
+
+                                        <span
+                                            class="badge bg-light text-dark ms-2">{{ number_format($review->rating, 2) }}</span>
+                                    </div>
+
+                                    <!-- Review Content -->
+                                    <div class="mb-3">
+                                        <p class="card-text">{{ $review->note }}</p>
+                                    </div>
+
+                                    <!-- Like Section -->
+                                    <div class="d-flex align-items-center mb-4">
+                                        <form action="{{ route('games.log.like') }}" method="POST" class="me-3">
+                                            @csrf
+                                            <input type="hidden" name="review_id" value="{{ $review->id }}">
+                                            <button type="submit"
+                                                class="btn btn-sm {{ auth()->user()->log_likes()->where('log_id', $review->id)->exists() ? 'btn-danger' : 'btn-outline-danger' }}">
+                                                <i class="bi bi-heart-fill"></i> Like
+                                            </button>
+                                        </form>
+
+                                        @foreach ($logLikes as $like)
+                                            @if ($like->log_id == $review->id)
+                                                @php
+                                                    $last_likedReview = $review->id;
+                                                    $like_counter++;
+                                                @endphp
+                                            @endif
+                                            @if ($last_likedReview !== $review->id)
+                                                @php
+                                                    $like_counter = 0;
+                                                @endphp
+                                            @endif
+                                        @endforeach
+
+                                        <span class="text-muted">
+                                            @if ($like_counter > 0)
+                                                {{ $like_counter }} {{ $like_counter == 1 ? 'like' : 'likes' }}
+                                            @else
+                                                No likes yet
+                                            @endif
+                                        </span>
+                                    </div>
+
+                                    <!-- Comments Section -->
+                                    <div class="mb-3">
+                                        <h6 class="text-muted mb-3"><i class="bi bi-chat-left-text me-2"></i>Comments
+                                        </h6>
+                                        <div class="bg-light rounded p-3">
+                                            @foreach ($comments as $comment)
+                                                @if ($review->id == $comment->parent_id)
+                                                    @if ($comment_counter <= 1)
+                                                        <div class="mb-3 pb-2 border-bottom">
+                                                            <div
+                                                                class="d-flex justify-content-between align-items-center mb-1">
+                                                                <strong
+                                                                    class="text-primary">{{ $comment->user->username }}</strong>
+                                                                <small
+                                                                    class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                                                            </div>
+                                                            <p class="mb-2">{{ $comment->content }}</p>
+
+                                                            @if ($comment->user_id == auth()->user()->id)
+                                                                <div class="btn-group btn-group-sm">
+                                                                    <button class="btn btn-outline-secondary btn-sm"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#removeCommentModal"
+                                                                        removeComment-data-id="{{ $comment->id }}"
+                                                                        onclick="fillRemoveCommentModalFields(this)">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-outline-warning btn-sm"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#commentModal"
+                                                                        comment-data-id="{{ $comment->id }}"
+                                                                        comment-data-text="{{ e($comment->content) }}"
+                                                                        onclick="fillCommentModalFields(this)">
+                                                                        <i class="bi bi-pencil"></i>
+                                                                    </button>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                        @php
+                                                            $comment_counter++;
+                                                        @endphp
+                                                    @endif
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                    <!-- Reply Form -->
+                                    <form method="POST" action="{{ route('games.log.comments') }}" class="mt-3">
+                                        @csrf
+                                        <input type="hidden" name="parent_id" value="{{ $review->id }}">
+                                        <div class="input-group">
+                                            <input type="text" id="reply" name="reply" class="form-control"
+                                                placeholder="Write a comment..." aria-label="Comment">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-send"></i> Send
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-light">
+                            <a href="{{ route('games.comments', $review->id) }}"
+                                class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-chat-square-text"></i> View all comments
+                            </a>
+                        </div>
+                    </div>
+                    <br>
+                    <hr>
+                    <br>
+
+                @empty
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> There are no reviews yet...
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Artworks -->
+        @isset($game['artworks'])
+            <div class="card border-0 shadow-sm mb-5">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">🎨 Artworks</h3>
+                    <div class="row row-cols-2 row-cols-md-4 g-4">
+                        @foreach ($game['artworks'] as $artwork)
+                            <div class="col">
+                                <img src="https:{{ str_replace('t_thumb', 't_1080p', $artwork['url']) }}"
+                                    class="img-fluid rounded-3 hover-zoom" alt="Game artwork">
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endisset
+
+        <!-- DLCs & Expansions -->
+        @isset($game['dlcs'])
+            <div class="card border-0 shadow-sm mb-5">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">🕹️ DLCs & Expansions</h3>
+                    <div class="row row-cols-1 row-cols-md-3 g-4">
+                        @foreach ($game['dlcs'] as $dlc)
+                            <div class="col">
+                                <div class="game-card-small">
+                                    @if (isset($dlc['cover']['url']))
+                                        <img src="https:{{ str_replace('t_thumb', 't_cover_big', $dlc['cover']['url']) }}"
+                                            class="img-fluid rounded-top" alt="{{ $dlc['name'] }}">
+                                    @endif
+                                    <div class="p-2">
+                                        <h6>{{ $dlc['name'] }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endisset
+
+
+        <!-- Franchise & Series -->
+        @isset($game['franchise'])
+            <div class="card border-0 shadow-sm mb-5">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">📚 Franchise</h3>
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-collection-play fs-2"></i>
+                        <h4>{{ $game['franchise']['name'] }}</h4>
+                    </div>
+                </div>
+            </div>
+        @endisset
+
+        <!-- Videos Section -->
         @isset($game['videos'])
             <div class="card border-0 shadow-sm mb-5">
                 <div class="card-body">
                     <h3 class="card-title mb-4">🎥 Trailers & Videos</h3>
-                    <div class="row row-cols-1 row-cols-lg-2 g-4">
+                    <div class="row row-cols-1 row-cols-lg-4 g-4">
                         @foreach ($game['videos'] as $video)
                             <div class="col">
                                 <div class="ratio ratio-16x9">
@@ -483,46 +527,61 @@
                 </div>
             </div>
         @endisset
-
-        <!-- 7. Websites & Links -->
+        <!-- Websites & Links -->
         @isset($game['websites'])
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <h3 class="card-title mb-4">🌐 Official Links</h3>
-                    <div class="d-flex flex-wrap gap-3">
+                    <div class="rounded-social-buttons d-flex flex-wrap gap-3">
+
                         @foreach ($game['websites'] as $website)
-                            <a href="{{ $website['url'] }}" class="btn btn-outline-dark" target="_blank">
-                                @switch($website['category'])
-                                    @case(1)
-                                        🌐 Official Site
-                                    @break
+                            @switch($website['category'])
+                                @case(1)
+                                    <a href="{{ $website['url'] }}" class="social-button facebook" target="_blank">
+                                        <i class="fa-solid fa-globe"></i> </a>
+                                @break
 
-                                    @case(2)
-                                        📱 Twitter
-                                    @break
+                                @case(2)
+                                    {{-- X --}}
+                                    {{-- <img src="{{ asset('images/twitter.png') }}" alt="Twitter" class="w-auto h-14"> --}}
+                                    <a href="{{ $website['url'] }}" class="social-button tiktok" target="_blank">
+                                        <i class="fa-brands fa-x-twitter"></i> </a>
+                                @break
 
-                                    @case(3)
-                                        📘 Facebook
-                                    @break
+                                @case(3)
+                                    {{-- Wikipedia --}}
+                                    {{-- <img src="{{ asset('images/wiki.png') }}" alt="Wikipedia" class="w-auto h-14"> --}}
+                                    <a href="{{ $website['url'] }}" class="social-button linkedin" target="_blank">
+                                        <i class="fa-brands fa-wikipedia-w"></i>
+                                    </a>
+                                @break
 
-                                    @default
-                                        🔗 Other
-                                @endswitch
-                            </a>
+                                @case(9)
+                                    <a href="{{ $website['url'] }}" class="social-button youtube" target="_blank">
+                                        <i class="fa-brands fa-youtube"></i> </a>
+                                @break
+
+                                @case(13)
+                                    <a href="{{ $website['url'] }}" class="social-button steam" target="_blank">
+                                        <i class="fa-brands fa-steam-symbol"></i> </a>
+                                @break
+
+                                @case(8)
+                                    <a href="{{ $website['url'] }}" class="social-button instagram" target="_blank">
+                                        <i class="fa-brands fa-instagram"></i> </a>
+                                @break
+                            @endswitch
                         @endforeach
                     </div>
                 </div>
             </div>
         @endisset
         <hr>
-
+        <br>
         <!-- Back Button -->
         <a href="{{ route('games.index') }}" class="btn btn-outline-primary">
             ← Back to All Games
         </a>
-
-
-
 
         <!-- Review Modal -->
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -540,6 +599,21 @@
                         <form action="{{ route('games.log.edit') }}" method="POST">
                             @csrf
                             <input type="hidden" name="id" id="modalHiddenId">
+                            {{-- <!-- Rating -->
+                            <div class="mb-3">
+                                <label for="rating" class="form-label">Rating</label>
+                                <br>
+                                <div class="stars" data-rating="{{ $game->rating ?? 0 }}">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <div class="star" data-value="{{ $i }}">
+                                            ★
+                                        </div>
+                                    @endfor
+                                </div>
+                                <input type="hidden" name="rating" id="ratingInput"
+                                    value="{{ old('rating', $game->rating ?? 0) }}">
+                            </div> --}}
+
                             <!-- Notes -->
                             <div class="mb-3">
                                 <label for="notes" class="form-label">Review</label>
@@ -548,6 +622,30 @@
 
                             <!-- Submit Button -->
                             <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Remove Log Modal --}}
+        <div class="modal fade" id="removeLogModal" tabindex="-1" aria-labelledby="removeLogModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="removeLogModalLabel">Are you sure?</h5>
+                        <button type="button" class="btn btn-gray" data-bs-dismiss="modal"
+                            aria-label="Close">Close</button>
+                    </div>
+
+                    <!-- Modal Body (Form) -->
+                    <div class="modal-body">
+                        <form action="{{ route('games.log.remove') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="id" id="removeLog_modalHiddenId">
+                            <button class="btn btn-danger">Remove</button>
                         </form>
                     </div>
                 </div>
@@ -587,30 +685,6 @@
             </div>
         </div>
 
-        {{-- Remove Log Modal --}}
-        <div class="modal fade" id="removeLogModal" tabindex="-1" aria-labelledby="removeLogModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <!-- Modal Header -->
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="removeLogModalLabel">Are you sure?</h5>
-                        <button type="button" class="btn btn-gray" data-bs-dismiss="modal"
-                            aria-label="Close">Close</button>
-                    </div>
-
-                    <!-- Modal Body (Form) -->
-                    <div class="modal-body">
-                        <form action="{{ route('games.log.remove') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="id" id="removeLog_modalHiddenId">
-                            <button class="btn btn-danger">Remove</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         {{-- Remove Comment Modal --}}
         <div class="modal fade" id="removeCommentModal" tabindex="-1" aria-labelledby="removeCommentModalLabel"
             aria-hidden="true">
@@ -639,6 +713,9 @@
 
 
 
+        <button class="back-to-top" title="Go to top">
+            <i class="bi bi-arrow-up"></i>
+        </button>
 
     </div>
 
@@ -656,12 +733,45 @@
 </style>
 
 <script>
+    // Kullanıcı yeni bir yıldız seçerse input'u güncelle
+    document.addEventListener('DOMContentLoaded', () => {
+        const stars = document.querySelectorAll('#editModal .star');
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const value = parseInt(star.getAttribute('data-value'));
+                document.getElementById('ratingInput').value = value;
+
+                // Seçimi güncelle
+                stars.forEach(s => {
+                    if (parseInt(s.getAttribute('data-value')) <= value) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+    });
+
+
     function fillModalFields(button) {
         var text = button.getAttribute('data-text');
         var id = button.getAttribute('data-id');
+        var rating = button.getAttribute('data-rating');
+        // Yıldızları işaretle
+        const stars = document.querySelectorAll('#editModal .star');
+        stars.forEach(star => {
+            const value = parseInt(star.getAttribute('data-value'));
+            if (value <= rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
 
         document.getElementById('modalTextarea').value = text;
         document.getElementById('modalHiddenId').value = id;
+        document.getElementById('modalRating').value = rating;
     }
 
     function fillCommentModalFields(button) {
@@ -683,4 +793,24 @@
 
         document.getElementById('removeComment_modalHiddenId').value = id;
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const backToTopButton = document.querySelector('.back-to-top');
+
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopButton.style.display = 'block';
+            } else {
+                backToTopButton.style.display = 'none';
+            }
+        });
+
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    });
 </script>

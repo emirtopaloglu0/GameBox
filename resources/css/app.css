@@ -37,6 +37,28 @@
     transition: transform 0.3s;
 }
 
+.game-card-profile {
+    width: 250px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+    margin-right: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
 .game-card h2 {
     min-height: 50px; /* Başlık alanını sabitle */
     font-size: 16px;
@@ -55,11 +77,15 @@
     height: auto; */
 }
 
-.page-link {
-    /* background-color: #00ac1c;
-    color: #f8fdf9; */
-    border-radius: 5px;
-    /* border-color: #14181c; */
+.game-card-profile img {
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    /* width: 100%;
+    height: auto; */
+}
+
+.profile-img img {
+    transition: transform 0.3s ease;
 }
 
 .game-card:hover {
@@ -68,6 +94,22 @@
 }
 
 .game-card:hover img {
+    transform: scale(1.1);
+}
+
+.profile-img:hover {
+    transform: translateY(-5px);
+}
+.profile-img:hover img {
+    transform: scale(1.1);
+}
+
+.game-card-profile:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+.game-card-profile:hover img {
     transform: scale(1.1);
 }
 
@@ -84,6 +126,22 @@
 }
 
 .game-card:hover::after {
+    opacity: 1;
+}
+
+.game-card-profile::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.game-card-profile:hover::after {
     opacity: 1;
 }
 
@@ -107,6 +165,13 @@
     height: 25px;
     border-radius: 20px;
     overflow: hidden;
+}
+
+.page-link {
+    /* background-color: #00ac1c;
+    color: #f8fdf9; */
+    border-radius: 5px;
+    /* border-color: #14181c; */
 }
 
 /* Like Butonu Animasyonu */
@@ -155,10 +220,6 @@
 
 /* Yıldızlar */
 
-/* These styles are applied by default.
-   They will also override the hover
-   style for all stars to the right
-   of the currently hovered star. */
 .rate i,
 .rate i:hover ~ i {
     color: #222;
@@ -239,4 +300,182 @@
 
 .star.active {
     color: #ffd700; /* Tam yıldız rengi */
+}
+
+.comments {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    line-height: 50px;
+    font-size: 20px;
+    z-index: 1000;
+    transition: all 0.3s;
+    border: none;
+}
+
+.back-to-top:hover {
+    background-color: #555;
+    transform: translateY(-3px);
+}
+
+.back-to-top:active {
+    transform: translateY(1px);
+}
+
+.title {
+    font-size: x-large;
+    font-family: "DM Serif Text", sans-serif;
+}
+
+.api-info {
+    font-size: 0.7rem;
+}
+
+.text {
+    color: white;
+    font-size: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    white-space: nowrap;
+}
+
+.svg-inline--fa {
+    vertical-align: -0.2em;
+}
+
+.rounded-social-buttons {
+    text-align: center;
+}
+
+.rounded-social-buttons .social-button {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    width: 3.125rem;
+    height: 3.125rem;
+    border: 0.125rem solid transparent;
+    padding: 0;
+    text-decoration: none;
+    text-align: center;
+    color: #fefefe;
+    font-size: 1.5625rem;
+    font-weight: normal;
+    line-height: 2em;
+    border-radius: 1.6875rem;
+    transition: all 0.5s ease;
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.rounded-social-buttons .social-button:hover,
+.rounded-social-buttons .social-button:focus {
+    -webkit-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    transform: rotate(360deg);
+}
+
+.rounded-social-buttons .fa-twitter,
+.fa-facebook-f,
+.fa-linkedin,
+.fa-tiktok,
+.fa-youtube,
+.fa-instagram {
+    font-size: 25px;
+}
+
+.rounded-social-buttons .social-button.facebook {
+    background: #3b5998;
+}
+
+.rounded-social-buttons .social-button.facebook:hover,
+.rounded-social-buttons .social-button.facebook:focus {
+    color: #3b5998;
+    background: #fefefe;
+    border-color: #3b5998;
+}
+
+.rounded-social-buttons .social-button.twitter {
+    background: #55acee;
+}
+
+.rounded-social-buttons .social-button.twitter:hover,
+.rounded-social-buttons .social-button.twitter:focus {
+    color: #55acee;
+    background: #fefefe;
+    border-color: #55acee;
+}
+
+.rounded-social-buttons .social-button.linkedin {
+    background: #007bb5;
+}
+
+.rounded-social-buttons .social-button.linkedin:hover,
+.rounded-social-buttons .social-button.linkedin:focus {
+    color: #007bb5;
+    background: #fefefe;
+    border-color: #007bb5;
+}
+
+.rounded-social-buttons .social-button.tiktok {
+    background: #000000;
+}
+
+.rounded-social-buttons .social-button.tiktok:hover,
+.rounded-social-buttons .social-button.tiktok:focus {
+    color: #000000;
+    background: #fefefe;
+    border-color: #000000;
+}
+
+.rounded-social-buttons .social-button.youtube {
+    background: #bb0000;
+}
+
+.rounded-social-buttons .social-button.youtube:hover,
+.rounded-social-buttons .social-button.youtube:focus {
+    color: #bb0000;
+    background: #fefefe;
+    border-color: #bb0000;
+}
+
+.rounded-social-buttons .social-button.instagram {
+    background: #be1190;
+}
+
+.rounded-social-buttons .social-button.instagram:hover,
+.rounded-social-buttons .social-button.instagram:focus {
+    color: #be1190;
+    background: #fefefe;
+    border-color: #be1190;
+}
+
+textarea {
+    resize: none;
+}
+
+.rounded-social-buttons .social-button.steam {
+    background: #5c5b5b;
+}
+
+.rounded-social-buttons .social-button.steam:hover,
+.rounded-social-buttons .social-button.steam:focus {
+    color: #5c5b5b;
+    background: #fefefe;
+    border-color: #5c5b5b;
 }

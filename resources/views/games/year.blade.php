@@ -95,7 +95,11 @@
         </div>
         <br>
 
-
+        <footer>
+            <small class="text-muted api-info">
+                * These ratings are based on IGDB Api.
+            </small>
+        </footer>
 
     </div>
 

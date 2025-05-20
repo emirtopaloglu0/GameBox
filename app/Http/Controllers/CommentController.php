@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use App\Models\Like;
 use App\Models\Log;
+use App\Models\LogLikes;
 use App\Models\PlayLater;
 use Illuminate\Container\Attributes\Auth;
 use MarcReichel\IGDBLaravel\Models\Game;
@@ -19,20 +20,36 @@ use Illuminate\Support\Facades\Cache;
 
 class CommentController extends Controller
 {
-    public function sendComment(Request $request){
+
+    public function index(string $id)
+    {
+        $comments = Comment::with('logs.user')->where('parent_id', $id)
+            ->orderByDesc('updated_at')
+            ->get();
+
+        $reviews = Log::with('user')
+        ->where('id',$id)->get();
+
+        $logLikes = LogLikes::with('likes.user')->get();
+
+        return view('games.comments', compact('comments', 'reviews', 'logLikes'));
+    }
+
+    public function sendComment(Request $request)
+    {
         $validated = $request->validate([
             'reply' => 'required',
         ]);
 
         Comment::create([
-            'user_id'=> FacadesAuth::id(),
+            'user_id' => FacadesAuth::id(),
             'parent_id' => $request['parent_id'],
             'content' => $validated['reply']
         ]);
         return back()->with('success');
-
     }
-    public function removeComment(Request $request) {
+    public function removeComment(Request $request)
+    {
         $request->validate([
             'id' => 'required',
         ]);
@@ -74,7 +91,4 @@ class CommentController extends Controller
 
         return back()->with('success', $message);
     }
-
-
-
 }

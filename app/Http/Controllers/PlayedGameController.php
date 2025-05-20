@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PlayedGame;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
-
+use Illuminate\Support\Facades\Http;
 
 class PlayedGameController extends Controller
 {
@@ -33,4 +33,6 @@ class PlayedGameController extends Controller
 
         return back()->with('success', $message);
     }
+
+    
 }

@@ -21,6 +21,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/games/year', [GameController::class, 'yearFilterGames'])->name('games.yearFilter');
     Route::get('/games/genre', [GameController::class, 'genreFilterGames'])->name('games.genreFilter');
     Route::get('/games/{id}', [GameController::class, 'show'])->name('games.show');
+    Route::get('/comments/{id}', [CommentController::class, 'index'])->name('games.comments');
+    Route::get('/logs/{id}', [GameController::class, 'AllLogs'])->name('games.logs');
+
+
     Route::post('/games/like', [LikesController::class, 'toggleLike'])->name('games.like.toggle');
     Route::post('/games/play', [PlayedGameController::class, 'togglePlay'])->name('games.play.toggle');
     Route::post('/games/later', [PlayLaterController::class, 'toggleLater'])->name('games.later.toggle');
@@ -38,8 +42,13 @@ Route::middleware(['auth'])->group(function () {
 
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::get('/show', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/played', [ProfileController::class, 'ShowPlayed'])->name('profile.played.show');
+    Route::get('/profile/logs', [ProfileController::class, 'ShowLogs'])->name('profile.logs');
+    Route::get('/profile/likes', [ProfileController::class, 'ShowLikes'])->name('profile.likes');
+    Route::get('/profile/playLater', [ProfileController::class, 'ShowLaterList'])->name('profile.later');
+
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
