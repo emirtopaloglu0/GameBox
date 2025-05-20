@@ -44,34 +44,9 @@
                         <p>Can't Find a Cover Photo</p>
                     @endif
                     <br>
-                    <div class="mb-2">
-                        @if ($game['rating'] != null)
-                            @php
-                                $stars = floor((float) $game['rating']);
-                                $half = (float) $game['rating'] - $stars >= 0.5 ? true : false;
-                            @endphp
-
-                            @for ($i = 0; $i < $stars; $i++)
-                                <i class="bi bi-star-fill text-warning"></i>
-                            @endfor
-
-                            @if ($half)
-                                <i class="bi bi-star-half text-warning"></i>
-                            @endif
-
-                            @for ($i = $stars + ($half ? 1 : 0); $i < 5; $i++)
-                                <i class="bi bi-star text-warning"></i>
-                            @endfor
-
-                            <span class="text-muted ms-2">({{ number_format((float) $game['rating'], 2) }})</span>
-                        @else
-                            <p class="text-muted">No rating yet...</p>
-                        @endif
-                    </div>
-
                     <br>
                     <p class="text-gray-600 text-sm mb-1">
-                        Last Played: {{ \Carbon\Carbon::parse($game['played_at'])->format('d M Y - H:i') }}
+                        Added: {{ \Carbon\Carbon::parse($game['played_at'])->format('d M Y - H:i') }}
                     </p>
                 </div>
             @endforeach
